@@ -1,6 +1,6 @@
 /* ===================================================
    STEPS FETP India Decision Aid
-   Premium, production readyy script
+   Premium, production readyy scriptt
    =================================================== */
 
 /* ===========================

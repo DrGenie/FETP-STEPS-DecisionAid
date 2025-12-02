@@ -7,6 +7,15 @@
     "author": "Mesfin Genie and collaborators",
     "notes": "Version 1.1 adds meta, general, UI and scenario fields while preserving the original tier/template structure and component amounts."
   },
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2025-12-02",
+    "description": "Cost templates for STEPS FETP India decision aid. Values are aligned with official WHO, NIE and NCDC submissions and are intended for use in economic evaluation and decision-support tools.",
+    "contacts": [
+      "mesfin.genie@newcastle.edu.au"
+    ],
+    "notes": "This configuration is designed to be editable by technical users (e.g. WHO, World Bank, MoH teams) without modifying the core JavaScript code."
+  },
   "general": {
     "currency": "INR",
     "defaultTier": "intermediate",
@@ -21,6 +30,15 @@
       "amountRupees": 1,
       "amountMillions": 1000000
     }
+  },
+  "currency": {
+    "code": "INR",
+    "name": "Indian Rupee",
+    "symbol": "₹",
+    "base_unit": "INR",
+    "thousand_unit": "1,000 INR",
+    "per_trainee_month_unit": "INR per trainee per month",
+    "notes": "All monetary values in this configuration are expressed in Indian Rupees (INR). Programme templates are provided as total INR per cohort or per set of cohorts. The tool converts these to per-cohort and per-trainee-per-month values based on user inputs."
   },
   "ui": {
     "groupingOrder": [
@@ -40,6 +58,85 @@
       "allowTemplateCloning": true
     }
   },
+  "categories": {
+    "list": [
+      {
+        "id": "salary_and_benefits",
+        "label": "Salary and benefits",
+        "description": "Salaries, wages and employment-related benefits for programme staff, faculty, mentors and administrators."
+      },
+      {
+        "id": "equipment_and_supplies",
+        "label": "Equipment and supplies",
+        "description": "Office equipment, IT hardware, software licences and other supplies required to run the programme."
+      },
+      {
+        "id": "facilities",
+        "label": "Facilities",
+        "description": "Rent, utilities and other facility-related costs for staff and programme offices."
+      },
+      {
+        "id": "trainee_support",
+        "label": "Trainee support",
+        "description": "Allowances, stipends, trainee equipment and software provided directly to trainees."
+      },
+      {
+        "id": "training",
+        "label": "Training",
+        "description": "Training materials, workshops, seminars and related delivery costs."
+      },
+      {
+        "id": "travel_expenses",
+        "label": "Travel expenses",
+        "description": "In-country and international travel costs for trainees, mentors and faculty, including per diem and accommodation."
+      },
+      {
+        "id": "other_expenses",
+        "label": "Other expenses",
+        "description": "Other direct programme expenses not captured under specific categories."
+      },
+      {
+        "id": "administrative_support",
+        "label": "Administrative support",
+        "description": "Management, oversight and office maintenance requirements that support programme delivery."
+      },
+      {
+        "id": "in_kind_contributions",
+        "label": "In-kind contributions",
+        "description": "In-kind salary and other contributions that are not directly billed to the programme budget."
+      },
+      {
+        "id": "infrastructure_costs",
+        "label": "Infrastructure costs",
+        "description": "Facility upgrades, capital investments and equipment depreciation."
+      },
+      {
+        "id": "utilities",
+        "label": "Utilities",
+        "description": "Shared utilities such as electricity, water, cleaning and internet services."
+      },
+      {
+        "id": "professional_services",
+        "label": "Professional services",
+        "description": "Legal, financial, auditing and other professional consulting services."
+      },
+      {
+        "id": "training_and_capacity_building",
+        "label": "Training and capacity building",
+        "description": "Training and development for staff who support the programme but are not trainees."
+      },
+      {
+        "id": "opportunity_cost",
+        "label": "Opportunity cost",
+        "description": "Economic value of trainee time and other resources that could have been used elsewhere (e.g. trainee salary while in training)."
+      },
+      {
+        "id": "other_indirect_costs",
+        "label": "Other indirect costs",
+        "description": "Other indirect costs related to the programme which are not captured under specific headings."
+      }
+    ]
+  },
   "scenarios": {
     "financialCost": {
       "label": "Financial cost only",
@@ -50,6 +147,134 @@
       "label": "Economic cost (including opportunity cost)",
       "description": "Includes all components marked as opportunity cost in addition to financial costs.",
       "includeOpportunityCost": true
+    }
+  },
+  "defaults": {
+    "frontline_default_template": "who_frontline_6_cohorts",
+    "intermediate_default_template": "overall_intermediate_1_cohort",
+    "advanced_default_template": "overall_advanced_1_cohort",
+    "endorsement_rate_default": 1.0,
+    "discount_rate_default": 0.03,
+    "notes": "Legacy keys such as general.defaultTemplates are preserved for backwards compatibility. New default_*_template keys point to IDs defined under templates.{tier}.{id}."
+  },
+  "templates": {
+    "frontline": {
+      "who_frontline_6_cohorts": {
+        "id": "who_frontline_6_cohorts",
+        "label": "Frontline – WHO template (6 cohorts)",
+        "tier": "frontline",
+        "source": "WHO",
+        "description": "WHO cost template for Frontline FETP covering six cohorts. Component totals are for six cohorts and are converted to per-cohort costs in the tool.",
+        "default_cohorts": 6,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Category shares and opportunity cost share are computed dynamically from the component list under frontline.WHO."
+      }
+    },
+    "intermediate": {
+      "who_intermediate_1_cohort": {
+        "id": "who_intermediate_1_cohort",
+        "label": "Intermediate – WHO template (1 cohort)",
+        "tier": "intermediate",
+        "source": "WHO",
+        "description": "WHO cost template for Intermediate FETP for one cohort. Component totals are used directly to compute cost shares.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Category shares and opportunity cost share are computed dynamically from the component list under intermediate.WHO."
+      },
+      "nie_intermediate_1_cohort": {
+        "id": "nie_intermediate_1_cohort",
+        "label": "Intermediate – NIE template (1 cohort)",
+        "tier": "intermediate",
+        "source": "NIE",
+        "description": "NIE cost template for Intermediate FETP for one cohort. Totals are used to derive component shares.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Opportunity cost is currently reported as zero but the structure is present to allow users to adjust it in the tool."
+      },
+      "ncdc_intermediate_1_cohort": {
+        "id": "ncdc_intermediate_1_cohort",
+        "label": "Intermediate – NCDC template (1 cohort)",
+        "tier": "intermediate",
+        "source": "NCDC",
+        "description": "NCDC cost template for Intermediate FETP for one cohort. Totals are used to derive cost shares.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Opportunity cost is currently reported as zero but can be updated in-country using the same structure."
+      },
+      "overall_intermediate_1_cohort": {
+        "id": "overall_intermediate_1_cohort",
+        "label": "Intermediate – combined Overall template (WHO + NIE + NCDC)",
+        "tier": "intermediate",
+        "source": "Combined",
+        "description": "Combined template for Intermediate FETP using Overall column (WHO + NIE + NCDC). Values approximate one intermediate cohort and are used for Overall intermediate cost shares.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Category and opportunity-cost shares are derived from the components list under intermediate.Overall."
+      }
+    },
+    "advanced": {
+      "nie_advanced_1_cohort": {
+        "id": "nie_advanced_1_cohort",
+        "label": "Advanced – NIE template (1 cohort)",
+        "tier": "advanced",
+        "source": "NIE",
+        "description": "NIE cost template for Advanced FETP for one cohort.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Opportunity cost is structurally present but currently set to zero; users can adjust this if estimates are available."
+      },
+      "ncdc_advanced_1_cohort": {
+        "id": "ncdc_advanced_1_cohort",
+        "label": "Advanced – NCDC template (1 cohort)",
+        "tier": "advanced",
+        "source": "NCDC",
+        "description": "NCDC cost template for Advanced FETP for one cohort.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Opportunity cost is structurally present but currently set to zero."
+      },
+      "overall_advanced_1_cohort": {
+        "id": "overall_advanced_1_cohort",
+        "label": "Advanced – combined Overall template (NIE + NCDC)",
+        "tier": "advanced",
+        "source": "Combined",
+        "description": "Combined template for Advanced FETP created by summing NIE and NCDC entries for one advanced cohort.",
+        "default_cohorts": 1,
+        "includes_opportunity_cost": true,
+        "cost_per_cohort_inr": null,
+        "cost_per_trainee_per_month_inr": null,
+        "category_shares": {},
+        "opportunity_cost_share": null,
+        "notes": "Category shares are derived from the components list under advanced.Overall. Opportunity cost is currently zero but can be set in-country."
+      }
     }
   },
   "frontline": {
@@ -1585,90 +1810,5 @@
         }
       ]
     }
-  },
-  "metadata": {
-    "version": "1.1",
-    "last_updated": "2025-11-30",
-    "description": "Cost templates for STEPS FETP India decision aid. Values are aligned with official WHO, NIE and NCDC submissions.",
-    "contacts": [
-      "mesfin.genie@newcastle.edu.au"
-    ]
-  },
-  "currency": {
-    "base_currency": "INR",
-    "display_name": "Indian Rupees",
-    "units": {
-      "amount": "INR",
-      "amount_thousands": "thousand INR",
-      "amount_millions": "million INR"
-    },
-    "conversion_reference": {
-      "display_currency_options": [
-        "INR",
-        "USD"
-      ],
-      "inr_per_usd_reference": 83,
-      "notes": "Conversion rates are indicative only and should be updated in the UI or a separate configuration when used for cross-currency reporting."
-    },
-    "notes": "All cost amounts in this file are expressed in Indian Rupees (INR). Programme and economic costs are specified per template and can be scaled to per trainee, per month or national rollout in the STEPS tool."
-  },
-  "categories": {
-    "major": {
-      "Direct cost": {
-        "label": "Direct programme costs",
-        "description": "Budgetary items that are directly attributable to FETP delivery for a given tier and cohort (for example salaries for programme staff, training events, travel and materials)."
-      },
-      "Indirect costs": {
-        "label": "Indirect and overhead costs",
-        "description": "Overheads, shared services, in-kind contributions and opportunity costs that support programme delivery but are not charged as direct line items in the training budget."
-      }
-    },
-    "cost": {
-      "Salary and benefits": {
-        "label": "Salary and benefits",
-        "description": "Salaries, benefits and related compensation for staff directly or indirectly supporting FETP training."
-      },
-      "Equipment and supplies": {
-        "label": "Equipment and supplies",
-        "description": "Office equipment, IT hardware and software licences used for programme management and training."
-      },
-      "Facilities": {
-        "label": "Facilities",
-        "description": "Rent and utilities for office and training facilities used by FETP staff and trainees."
-      },
-      "Trainee support": {
-        "label": "Trainee support",
-        "description": "Stipends, allowances and direct support items provided to trainees such as equipment and software."
-      },
-      "Training": {
-        "label": "Training events and materials",
-        "description": "Workshops, seminars, training events and printed or digital training materials for cohorts."
-      },
-      "Travel expenses": {
-        "label": "Travel expenses",
-        "description": "In-country and international travel for programme staff and trainees including transport, per diems and accommodation."
-      },
-      "Other expenses": {
-        "label": "Other direct expenses",
-        "description": "Other direct programme expenditures not captured in the above categories."
-      },
-      "Administrative support": {
-        "label": "Administrative support",
-        "description": "Management, administration and office support functions that enable programme delivery."
-      },
-      "In-kind contributions": {
-        "label": "In-kind contributions",
-        "description": "Staff time or resources contributed by partner organisations without direct budgetary payment in the FETP accounts."
-      },
-      "Infrastructure costs": {
-        "label": "Infrastructure costs",
-        "description": "Facility upgrades and equipment depreciation associated with assets used in FETP delivery."
-      },
-      "Utilities": {
-        "label": "Utilities and shared services",
-        "description": "Shared utilities and services such as cleaning, security and shared internet."
-      },
-      "Professional services": {
-        "label": "Professional services",
-        "description": "External legal, financial or other professional services purchased to support programme management."
-      }
+  }
+}

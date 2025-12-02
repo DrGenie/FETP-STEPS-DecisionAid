@@ -499,7 +499,7 @@ function computeCosts(cfg) {
         return {
             durationMonths,
             programmeCostPerCohort,
-            opportunityCostPerCohort,
+            opportunityCostPerCort: opportunityCostPerCohort,
             totalEconomicCostPerCohort,
             components: []
         };
@@ -608,11 +608,8 @@ function getEndorsementRateForSensitivity(defaultRate) {
     if (input) {
         const raw = parseFloat(input.value);
         if (!isNaN(raw) && raw > 0) {
-            if (raw > 1.5) {
-                rate = raw / 100;
-            } else {
-                rate = raw;
-            }
+            // If user entered "70" treat as 70%, otherwise treat as proportion
+            rate = raw > 1.5 ? raw / 100 : raw;
         }
     }
     if (!isFinite(rate) || isNaN(rate)) rate = 0;
@@ -720,6 +717,27 @@ function computeFullResults(cfg) {
         bcr,
         dceCba
     };
+}
+
+/* ===========================
+   Global refresh helper
+   =========================== */
+
+function refreshAll(results, options = {}) {
+    if (!results) return;
+    const { skipToast } = options;
+
+    state.lastResults = results;
+
+    updateConfigSummary(results);
+    updateResultsTab(results);
+    updateCostingTab(results);
+    updateNationalSimulation(results);
+    updateSensitivityTab(results);
+
+    if (!skipToast) {
+        showToast("Configuration applied. Results updated.", "success");
+    }
 }
 
 /* ===========================
@@ -927,12 +945,7 @@ function populateCostSourceOptions(tier) {
             state.currentCostSourceId = select.value;
             const cfg = readConfigurationFromInputs();
             const results = computeFullResults(cfg);
-            state.lastResults = results;
-            updateCostingTab(results);
-            updateResultsTab(results);
-            updateNationalSimulation(results);
-            updateConfigSummary(results);
-            updateSensitivityTab(results);
+            refreshAll(results, { skipToast: true });
         });
         select.dataset.bound = "1";
     }
@@ -1555,22 +1568,18 @@ function loadEpiConfigIfPresent() {
         .then(json => {
             state.epiSettings = json;
             populateAdvancedSettingsInputs();
-            updateAssumptionLog(readConfigurationFromInputs());
-            if (state.lastResults) {
-                const cfg = state.lastResults.cfg;
-                const results = computeFullResults(cfg);
-                state.lastResults = results;
-                updateConfigSummary(results);
-                updateResultsTab(results);
-                updateCostingTab(results);
-                updateNationalSimulation(results);
-                updateSensitivityTab(results);
-            }
+            const cfg = state.lastResults ? state.lastResults.cfg : readConfigurationFromInputs();
+            const results = computeFullResults(cfg);
+            refreshAll(results, { skipToast: true });
+            updateAssumptionLog(cfg);
         })
         .catch(() => {
             state.epiSettings = JSON.parse(JSON.stringify(DEFAULT_EPI_SETTINGS));
             populateAdvancedSettingsInputs();
-            updateAssumptionLog(readConfigurationFromInputs());
+            const cfg = state.lastResults ? state.lastResults.cfg : readConfigurationFromInputs();
+            const results = computeFullResults(cfg);
+            refreshAll(results, { skipToast: true });
+            updateAssumptionLog(cfg);
         });
 }
 
@@ -1588,12 +1597,7 @@ function loadCostConfigIfPresent() {
             const cfg = readConfigurationFromInputs();
             populateCostSourceOptions(cfg.tier);
             const results = computeFullResults(cfg);
-            state.lastResults = results;
-            updateConfigSummary(results);
-            updateResultsTab(results);
-            updateCostingTab(results);
-            updateNationalSimulation(results);
-            updateSensitivityTab(results);
+            refreshAll(results, { skipToast: true });
         })
         .catch(() => {
             COST_CONFIG = null;
@@ -1655,13 +1659,8 @@ function applyAdvancedSettings() {
 
     const cfg = readConfigurationFromInputs();
     const results = computeFullResults(cfg);
-    state.lastResults = results;
-    updateConfigSummary(results);
-    updateResultsTab(results);
-    updateCostingTab(results);
-    updateNationalSimulation(results);
+    refreshAll(results, { skipToast: true });
     updateAssumptionLog(cfg);
-    updateSensitivityTab(results);
     showToast("Advanced settings applied to current calculations.", "success");
 }
 
@@ -1670,13 +1669,8 @@ function resetAdvancedSettings() {
     populateAdvancedSettingsInputs();
     const cfg = readConfigurationFromInputs();
     const results = computeFullResults(cfg);
-    state.lastResults = results;
-    updateConfigSummary(results);
-    updateResultsTab(results);
-    updateCostingTab(results);
-    updateNationalSimulation(results);
+    refreshAll(results, { skipToast: true });
     updateAssumptionLog(cfg);
-    updateSensitivityTab(results);
     showToast("Advanced settings reset to default values.", "success");
 }
 
@@ -2368,6 +2362,9 @@ function renderTourStep() {
     showTabFromTour(step.tab);
 
     const target = document.querySelector(step.selector);
+    // If the target is missing (e.g. HTML changed), still show the tour popover
+    // anchored to a safe default position so the tour does not silently break.
+
     const titleEl = document.getElementById("tour-title");
     const bodyEl = document.getElementById("tour-body");
     const indicatorEl = document.getElementById("tour-step-indicator");
@@ -2530,18 +2527,8 @@ function applyConfiguration(silent) {
     populateCostSourceOptions(cfg.tier);
 
     const results = computeFullResults(cfg);
-    state.lastResults = results;
-
-    updateConfigSummary(results);
-    updateResultsTab(results);
-    updateCostingTab(results);
-    updateNationalSimulation(results);
+    refreshAll(results, { skipToast: silent });
     updateAssumptionLog(cfg);
-    updateSensitivityTab(results);
-
-    if (!silent) {
-        showToast("Configuration applied. Results updated.", "success");
-    }
 }
 
 function setupCoreInteractions() {
@@ -2571,12 +2558,7 @@ function setupCoreInteractions() {
             if (state.lastResults) {
                 const cfg = state.lastResults.cfg;
                 const results = computeFullResults(cfg);
-                state.lastResults = results;
-                updateConfigSummary(results);
-                updateResultsTab(results);
-                updateCostingTab(results);
-                updateNationalSimulation(results);
-                updateSensitivityTab(results);
+                refreshAll(results, { skipToast: true });
             }
         });
     });
@@ -2611,12 +2593,7 @@ function setupCoreInteractions() {
             if (state.lastResults) {
                 const cfg = state.lastResults.cfg;
                 const results = computeFullResults(cfg);
-                state.lastResults = results;
-                updateConfigSummary(results);
-                updateResultsTab(results);
-                updateCostingTab(results);
-                updateNationalSimulation(results);
-                updateSensitivityTab(results);
+                refreshAll(results, { skipToast: true });
             }
         });
     }
@@ -2681,13 +2658,12 @@ function setupCoreInteractions() {
     const endorsementRateInput = document.getElementById("dce-endorsement-rate");
     if (endorsementRateInput) {
         endorsementRateInput.addEventListener("change", () => {
-            if (state.lastResults) {
-                const cfg = state.lastResults.cfg;
-                const costs = state.lastResults.costs;
-                const epi = state.lastResults.epi;
-                state.lastResults.dceCba = computeDceCbaProfiles(cfg, costs, epi);
-                updateSensitivityTab(state.lastResults);
-            }
+            if (!state.lastResults) return;
+            const cfg = state.lastResults.cfg;
+            const costs = state.lastResults.costs;
+            const epi = state.lastResults.epi;
+            state.lastResults.dceCba = computeDceCbaProfiles(cfg, costs, epi);
+            updateSensitivityTab(state.lastResults);
         });
     }
 }

@@ -1,12 +1,20 @@
 {
   "meta": {
     "name": "STEPS FETP India cost configuration",
-    "version": "1.1",
+    "version": "1.2",
     "description": "Cost templates for FETP India Frontline, Intermediate and Advanced tiers, structured by component and compatible with the STEPS decision aid.",
-    "lastUpdated": "2025-11-30",
+    "lastUpdated": "2025-12-02",
     "author": "Mesfin Genie and collaborators",
-    "notes": "Version 1.1 adds meta, general, UI and scenario fields while preserving the original tier/template structure and component amounts."
+    "notes": "Version 1.2 adds enriched meta, UI, ranges, mappings and layout fields while preserving the original tier/template structure and component amounts from earlier versions.",
+    "backwardsCompatibleWith": [
+      "1.0",
+      "1.1"
+    ],
+    "configType": "programme_cost",
+    "intendedUse": "To provide structured, editable programme cost templates for use in the STEPS decision-support tool, including per-cohort and per-trainee-per-month cost calculations.",
+    "documentationUrl": "https://example.org/steps-fetp-india/cost-technical-appendix"
   },
+
   "metadata": {
     "version": "2.0",
     "last_updated": "2025-12-02",
@@ -16,6 +24,7 @@
     ],
     "notes": "This configuration is designed to be editable by technical users (e.g. WHO, World Bank, MoH teams) without modifying the core JavaScript code."
   },
+
   "general": {
     "currency": "INR",
     "defaultTier": "intermediate",
@@ -31,6 +40,7 @@
       "amountMillions": 1000000
     }
   },
+
   "currency": {
     "code": "INR",
     "name": "Indian Rupee",
@@ -40,6 +50,7 @@
     "per_trainee_month_unit": "INR per trainee per month",
     "notes": "All monetary values in this configuration are expressed in Indian Rupees (INR). Programme templates are provided as total INR per cohort or per set of cohorts. The tool converts these to per-cohort and per-trainee-per-month values based on user inputs."
   },
+
   "ui": {
     "groupingOrder": [
       "major",
@@ -56,8 +67,28 @@
       "allowEditAmounts": false,
       "allowEditLabels": false,
       "allowTemplateCloning": true
+    },
+    "controls": {
+      "templateSelector": {
+        "enabled": true,
+        "showTierTabs": true,
+        "showSourceLabels": true
+      },
+      "scenarioSelector": {
+        "enabled": true,
+        "defaultScenarioKey": "financialCost"
+      },
+      "opportunityCostToggle": {
+        "enabled": true,
+        "defaultOn": false
+      },
+      "scalingInputs": {
+        "enableCohortScaling": true,
+        "enableTraineeScaling": true
+      }
     }
   },
+
   "categories": {
     "list": [
       {
@@ -137,6 +168,7 @@
       }
     ]
   },
+
   "scenarios": {
     "financialCost": {
       "label": "Financial cost only",
@@ -147,8 +179,15 @@
       "label": "Economic cost (including opportunity cost)",
       "description": "Includes all components marked as opportunity cost in addition to financial costs.",
       "includeOpportunityCost": true
+    },
+    "economicHighOpportunityCost": {
+      "label": "Economic cost – high opportunity cost",
+      "description": "Applies a 25% uplift to components tagged as opportunity cost, while including all financial costs.",
+      "includeOpportunityCost": true,
+      "opportunityCostMultiplier": 1.25
     }
   },
+
   "defaults": {
     "frontline_default_template": "who_frontline_6_cohorts",
     "intermediate_default_template": "overall_intermediate_1_cohort",
@@ -157,6 +196,7 @@
     "discount_rate_default": 0.03,
     "notes": "Legacy keys such as general.defaultTemplates are preserved for backwards compatibility. New default_*_template keys point to IDs defined under templates.{tier}.{id}."
   },
+
   "templates": {
     "frontline": {
       "who_frontline_6_cohorts": {
@@ -277,6 +317,7 @@
       }
     }
   },
+
   "frontline": {
     "WHO": {
       "label": "Frontline – WHO template (6 cohorts)",
@@ -470,6 +511,7 @@
       ]
     }
   },
+
   "intermediate": {
     "WHO": {
       "label": "Intermediate – WHO template (1 cohort)",
@@ -1236,6 +1278,7 @@
       ]
     }
   },
+
   "advanced": {
     "NIE": {
       "label": "Advanced – NIE template (1 cohort)",
@@ -1809,6 +1852,145 @@
           "isOpportunityCost": false
         }
       ]
+    }
+  },
+
+  "ranges": {
+    "cohort_scale_factor": {
+      "min": 0.25,
+      "max": 4.0,
+      "step": 0.05
+    },
+    "trainees_per_cohort": {
+      "min": 5,
+      "max": 80,
+      "step": 1
+    },
+    "months_per_cohort": {
+      "min": 3,
+      "max": 36,
+      "step": 1
+    },
+    "endorsement_rate": {
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01
+    },
+    "discount_rate": {
+      "min": 0.0,
+      "max": 0.10,
+      "step": 0.005
+    }
+  },
+
+  "field_mappings": {
+    "uiToConfig": {
+      "endorsementRate": "defaults.endorsement_rate_default",
+      "discountRate": "defaults.discount_rate_default",
+      "includeOpportunityCost": "general.includeOpportunityCostByDefault",
+      "scenarioKey": "scenarios[*]",
+      "frontlineTemplateId": "templates.frontline[*].id",
+      "intermediateTemplateId": "templates.intermediate[*].id",
+      "advancedTemplateId": "templates.advanced[*].id"
+    },
+    "tierAliases": {
+      "frontline": "frontline",
+      "intermediate": "intermediate",
+      "advanced": "advanced"
+    }
+  },
+
+  "ui_layout": {
+    "sections": [
+      {
+        "id": "programme_structure",
+        "label": "Programme structure and scale",
+        "description": "Cohorts, trainee numbers and duration used to convert template totals to per-trainee-per-month costs.",
+        "fields": [
+          "tier",
+          "templateId",
+          "cohortCount",
+          "traineesPerCohort",
+          "monthsPerCohort"
+        ]
+      },
+      {
+        "id": "economic_assumptions",
+        "label": "Economic assumptions",
+        "description": "Parameters used for discounting and endorsement-weighted costs.",
+        "fields": [
+          "endorsementRate",
+          "discountRate",
+          "includeOpportunityCost"
+        ]
+      },
+      {
+        "id": "scenario_selection",
+        "label": "Scenario selection",
+        "description": "Pre-defined cost perspectives (financial vs economic).",
+        "fields": [
+          "scenarioKey"
+        ]
+      }
+    ]
+  },
+
+  "schema": {
+    "tier": {
+      "type": "string",
+      "enum": [
+        "frontline",
+        "intermediate",
+        "advanced"
+      ],
+      "description": "FETP programme tier."
+    },
+    "templateId": {
+      "type": "string",
+      "description": "Identifier of the selected cost template for the chosen tier."
+    },
+    "cohortCount": {
+      "type": "number",
+      "min": 1,
+      "max": 20,
+      "description": "Number of cohorts of the selected tier in the planning horizon."
+    },
+    "traineesPerCohort": {
+      "type": "number",
+      "min": 5,
+      "max": 80,
+      "description": "Number of trainees per cohort."
+    },
+    "monthsPerCohort": {
+      "type": "number",
+      "min": 3,
+      "max": 36,
+      "description": "Duration in months used for per-trainee-per-month calculations when relevant."
+    },
+    "endorsementRate": {
+      "type": "number",
+      "min": 0.0,
+      "max": 1.0,
+      "description": "Proportion of decision-makers endorsing the programme configuration (used for endorsement-weighted cost metrics)."
+    },
+    "discountRate": {
+      "type": "number",
+      "min": 0.0,
+      "max": 0.10,
+      "description": "Annual discount rate applied to future costs, where relevant."
+    },
+    "includeOpportunityCost": {
+      "type": "boolean",
+      "description": "Whether to include components tagged as opportunity cost in the cost totals."
+    },
+    "scenarioKey": {
+      "type": "string",
+      "enum": [
+        "financialCost",
+        "economicCost",
+        "economicHighOpportunityCost"
+      ],
+      "description": "Pre-defined cost scenario determining whether opportunity cost is included and how it is weighted."
     }
   }
 }

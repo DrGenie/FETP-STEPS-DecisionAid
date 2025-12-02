@@ -1,6 +1,6 @@
 /* ===================================================
-   STEPSs FETP India Decision Aid
-   Premium, production readyy scriptt
+   STEPS FETP India Decision Aid
+   Premium, production-ready script
    =================================================== */
 
 /* ===========================
@@ -200,7 +200,7 @@ const DEFAULT_EPI_SETTINGS = {
     }
 };
 
-/* Response-time multipliers for epi-based outbreak benefits (example: 30d=1.0, 15d=1.2, 7d=1.5) */
+/* Response-time multipliers for epi-based outbreak benefits */
 const RESPONSE_TIME_MULTIPLIERS = {
     "30": 1.0,
     "15": 1.2,
@@ -281,7 +281,6 @@ function logistic(x) {
 
 /**
  * Design utility (sum of attribute level coefficients excluding the ASC).
- * This is used for DCE-based WTP calculations.
  */
 function computeNonCostUtility(cfg, coefs) {
     const uTier = coefs.tier[cfg.tier] || 0;
@@ -294,8 +293,7 @@ function computeNonCostUtility(cfg, coefs) {
 
 /**
  * Compute WTP components per trainee per month (INR) for each attribute
- * and the total WTP for the configuration, using:
- * WTP_k (k INR / trainee / month) = -β_k / β_cost, then ×1000 for INR.
+ * and the total WTP for the configuration.
  */
 function computeWtpComponents(cfg, coefs) {
     const betaCost = coefs.costPerThousand || 0;
@@ -425,8 +423,6 @@ function getProgrammeDurationMonths(tier) {
 
 /**
  * Prefer external cost_config.json if present.
- * If available, derive direct shares and opportunity cost rate
- * from absolute component amounts.
  */
 function getCurrentCostTemplate(tier) {
     let chosenId = state.currentCostSourceId || null;
@@ -604,11 +600,7 @@ function computeEpi(cfg, endorseProb) {
    =========================== */
 
 /**
- * Sensitivity endorsement rate:
- * if an input with id="dce-endorsement-rate" exists, use that as:
- *   - value in [0,1] = fraction
- *   - value in [1,150] = percentage (e.g. 70 => 0.70)
- * otherwise default to model-based endorsement probability.
+ * Sensitivity endorsement rate from input if present.
  */
 function getEndorsementRateForSensitivity(defaultRate) {
     let rate = defaultRate;
@@ -1000,46 +992,19 @@ function updateConfigSummary(results) {
     const templateLabel = template ? template.label : "No template selected";
 
     const lines = [
-        {
-            label: "Programme tier",
-            value: tierLabel
-        },
-        {
-            label: "Career incentive",
-            value: careerLabel
-        },
-        {
-            label: "Mentorship intensity",
-            value: mentorLabel
-        },
-        {
-            label: "Delivery mode",
-            value: deliveryLabel
-        },
-        {
-            label: "Expected response time for events",
-            value: responseLabel
-        },
-        {
-            label: "Preference model",
-            value: modelLabel
-        },
-        {
-            label: "Trainees per cohort",
-            value: formatNumber(cfg.traineesPerCohort, 0)
-        },
-        {
-            label: "Number of cohorts",
-            value: formatNumber(cfg.numberOfCohorts, 0)
-        },
+        { label: "Programme tier", value: tierLabel },
+        { label: "Career incentive", value: careerLabel },
+        { label: "Mentorship intensity", value: mentorLabel },
+        { label: "Delivery mode", value: deliveryLabel },
+        { label: "Expected response time for events", value: responseLabel },
+        { label: "Preference model", value: modelLabel },
+        { label: "Trainees per cohort", value: formatNumber(cfg.traineesPerCohort, 0) },
+        { label: "Number of cohorts", value: formatNumber(cfg.numberOfCohorts, 0) },
         {
             label: "Cost per trainee per month",
             value: formatCurrency(cfg.costPerTraineePerMonth, state.currency)
         },
-        {
-            label: "Cost template",
-            value: templateLabel
-        }
+        { label: "Cost template", value: templateLabel }
     ];
 
     container.innerHTML = lines.map(row => `
@@ -1054,7 +1019,7 @@ function updateConfigSummary(results) {
         endorsementValueEl.textContent = formatPercent(endorsementPercent, 1);
     }
 
-    // FIX: support either headline-status-pill or headline-status-tag
+    // Support either headline-status-pill or headline-status-tag
     const headlineStatusEl =
         document.getElementById("headline-status-pill") ||
         document.getElementById("headline-status-tag");
@@ -1591,6 +1556,16 @@ function loadEpiConfigIfPresent() {
             state.epiSettings = json;
             populateAdvancedSettingsInputs();
             updateAssumptionLog(readConfigurationFromInputs());
+            if (state.lastResults) {
+                const cfg = state.lastResults.cfg;
+                const results = computeFullResults(cfg);
+                state.lastResults = results;
+                updateConfigSummary(results);
+                updateResultsTab(results);
+                updateCostingTab(results);
+                updateNationalSimulation(results);
+                updateSensitivityTab(results);
+            }
         })
         .catch(() => {
             state.epiSettings = JSON.parse(JSON.stringify(DEFAULT_EPI_SETTINGS));
@@ -1717,7 +1692,7 @@ function updateAssumptionLog(cfg) {
         "",
         `Planning horizon (years): ${s.general.planningHorizonYears}`,
         "",
-        "Outbreak responses per graduate per year by tier:",
+        "Outbreak responses per cohort per year by tier:",
         `  Frontline:     ${s.tiers.frontline.outbreaksPerCohortPerYear}`,
         `  Intermediate:  ${s.tiers.intermediate.outbreaksPerCohortPerYear}`,
         `  Advanced:      ${s.tiers.advanced.outbreaksPerCohortPerYear}`,
@@ -1795,7 +1770,6 @@ function saveScenarioFromCurrentResults() {
         totalNetBenefitAllCohorts: r.netBenefitAllCohorts
     };
 
-    // If a scenario with the same name exists, update it; otherwise add a new one
     const existingIndex = state.scenarios.findIndex(s => s.name === name);
     if (existingIndex !== -1) {
         state.scenarios[existingIndex] = scenario;
@@ -1806,7 +1780,7 @@ function saveScenarioFromCurrentResults() {
     try {
         window.localStorage.setItem("stepsScenarios", JSON.stringify(state.scenarios));
     } catch (e) {
-        // ignore
+        // ignore storage errors
     }
 
     renderScenarioTable();
@@ -2466,7 +2440,6 @@ function setupTour() {
     const nextBtn = document.getElementById("tour-next");
     const closeBtn = document.getElementById("tour-close-btn");
 
-    // NEW: wire the existing header Quick tour button
     const headerTrigger = document.getElementById("btn-start-tour");
     if (headerTrigger && !headerTrigger.dataset.tourBound) {
         headerTrigger.addEventListener("click", () => startTour(true));
@@ -2595,6 +2568,16 @@ function setupCoreInteractions() {
             modelButtons.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             state.model = btn.dataset.model || "mxl";
+            if (state.lastResults) {
+                const cfg = state.lastResults.cfg;
+                const results = computeFullResults(cfg);
+                state.lastResults = results;
+                updateConfigSummary(results);
+                updateResultsTab(results);
+                updateCostingTab(results);
+                updateNationalSimulation(results);
+                updateSensitivityTab(results);
+            }
         });
     });
 
@@ -2699,7 +2682,6 @@ function setupCoreInteractions() {
     if (endorsementRateInput) {
         endorsementRateInput.addEventListener("change", () => {
             if (state.lastResults) {
-                // Rebuild DCE CBA profiles with updated endorsement sensitivity
                 const cfg = state.lastResults.cfg;
                 const costs = state.lastResults.costs;
                 const epi = state.lastResults.epi;
@@ -2713,6 +2695,7 @@ function setupCoreInteractions() {
 /* ===========================
    Initialisation
    =========================== */
+
 document.addEventListener("DOMContentLoaded", () => {
     setupTabs();
     setupInfoTooltips();
@@ -2720,453 +2703,14 @@ document.addEventListener("DOMContentLoaded", () => {
     setupCoreInteractions();
     setupTechnicalAppendix();
 
-    // Ensure advanced settings and assumption log show defaults on first load
     populateAdvancedSettingsInputs();
     updateAssumptionLog(readConfigurationFromInputs());
 
-    // Optionally override defaults from external JSONs if present
     loadEpiConfigIfPresent();
     loadCostConfigIfPresent();
 
     loadSavedScenarios();
     setupTour();
 
-    // Compute initial results and update all tabs without a toast
     applyConfiguration(true);
 });
-// ===========================
-// Sensitivity / DCE benefits tab
-// ===========================
-
-// Mixed logit mean coefficients (overall)
-const STEPS_PREF_MIXED = {
-    ASC_A: 0.168,
-    ASC_OptOut: -0.601,
-    Intermediate: 0.220,
-    Advanced: 0.487,
-    UniQual: 0.017,
-    GovCareer: -0.122,
-    MentorMedium: 0.453,
-    MentorHigh: 0.640,
-    InPerson: -0.232,
-    Online: -1.073,
-    Resp15: 0.546,
-    Resp7: 0.610,
-    Cost: -0.005 // per 1 000 INR per trainee per month
-};
-
-// Latent class 2 (supportive group)
-const STEPS_PREF_CLASS2 = {
-    ASC_A: 0.098,
-    ASC_OptOut: -2.543,
-    // note: not all attributes estimated in the latent class are included above,
-    // here we use the ones you provided in the appendix
-    Intermediate: 0.000, // if you have an Intermediate coefficient for class 2, replace 0.000
-    Advanced: 0.422,
-    UniQual: 0.000,      // placeholder if not estimated separately
-    GovCareer: 0.000,    // placeholder if not estimated separately
-    MentorMedium: 0.342,
-    MentorHigh: 0.486,
-    InPerson: 0.000,     // placeholder
-    Online: 0.000,       // placeholder
-    Resp15: 0.317,
-    Resp7: 0.504,
-    Cost: -0.001 // per 1 000 INR per trainee per month
-};
-
-// Simple epi configuration used for the sensitivity tab.
-// If your Advanced settings allow editing these values, you can read them from the DOM instead.
-const STEPS_EPI_CONFIG = {
-    planningHorizonYears: 5,
-    Frontline: {
-        durationMonths: 3,
-        gradRate: 0.90,
-        outbreaksPerCohortPerYear: 0.30,
-        valuePerGraduate: 400000,
-        valuePerOutbreak: 30000000
-    },
-    Intermediate: {
-        durationMonths: 12,
-        gradRate: 0.90,
-        outbreaksPerCohortPerYear: 0.50,
-        valuePerGraduate: 500000,
-        valuePerOutbreak: 30000000
-    },
-    Advanced: {
-        durationMonths: 24,
-        gradRate: 0.95,
-        outbreaksPerCohortPerYear: 0.80,
-        valuePerGraduate: 600000,
-        valuePerOutbreak: 40000000
-    }
-};
-
-/**
- * Read the current configuration from the UI.
- * Adjust selectors if your element IDs or names differ.
- */
-function readConfigFromUI() {
-    // Tier: radio buttons or select
-    const tierInput =
-        document.querySelector('input[name="tier"]:checked') ||
-        document.getElementById('config-tier');
-    const tierValue = (tierInput && tierInput.value) ? tierInput.value : 'Frontline';
-
-    const mentorshipInput =
-        document.querySelector('input[name="mentorship"]:checked') ||
-        document.getElementById('config-mentorship');
-    const mentorshipValue = (mentorshipInput && mentorshipInput.value) ? mentorshipInput.value : 'low';
-
-    const deliveryInput =
-        document.querySelector('input[name="delivery"]:checked') ||
-        document.getElementById('config-delivery');
-    const deliveryValue = (deliveryInput && deliveryInput.value) ? deliveryInput.value : 'blended';
-
-    const responseInput =
-        document.querySelector('input[name="response"]:checked') ||
-        document.getElementById('config-response');
-    const responseValueRaw = (responseInput && responseInput.value) ? responseInput.value : '30';
-    const responseDays = parseInt(responseValueRaw, 10);
-
-    const careerInput =
-        document.querySelector('input[name="career"]:checked') ||
-        document.getElementById('config-career');
-    const careerValue = (careerInput && careerInput.value) ? careerInput.value : 'certificate';
-
-    const costInput = document.getElementById('config-cost') ||
-        document.getElementById('cost-per-trainee');
-    const costPerTraineePerMonth = costInput ? Number(costInput.value) : 100000;
-
-    const cohortSizeInput = document.getElementById('config-cohort-size') ||
-        document.getElementById('cohort-size');
-    const cohortSize = cohortSizeInput ? Number(cohortSizeInput.value) : 25;
-
-    const numCohortsInput = document.getElementById('config-num-cohorts') ||
-        document.getElementById('num-cohorts');
-    const numCohorts = numCohortsInput ? Number(numCohortsInput.value) : 1;
-
-    const oppToggle = document.getElementById('config-include-opp') ||
-        document.getElementById('include-opp-cost');
-    const includeOppCost = oppToggle ? !!oppToggle.checked : false;
-
-    return {
-        tier: tierValue,                     // "Frontline" | "Intermediate" | "Advanced"
-        mentorship: mentorshipValue,         // "low" | "medium" | "high"
-        delivery: deliveryValue,             // "blended" | "inperson" | "online"
-        responseDays: responseDays,          // 30 | 15 | 7
-        career: careerValue,                 // "certificate" | "uni" | "career"
-        costPerTraineePerMonth: costPerTraineePerMonth,
-        cohortSize: cohortSize,
-        numCohorts: numCohorts,
-        includeOppCost: includeOppCost
-    };
-}
-
-/**
- * Map configuration to attribute dummies for the utility and WTP calculations.
- * Returns an object with each dummy equal to 0 or 1.
- */
-function getAttributeDummies(config) {
-    const d = {
-        Intermediate: 0,
-        Advanced: 0,
-        UniQual: 0,
-        GovCareer: 0,
-        MentorMedium: 0,
-        MentorHigh: 0,
-        InPerson: 0,
-        Online: 0,
-        Resp15: 0,
-        Resp7: 0
-    };
-
-    if (config.tier === 'Intermediate') d.Intermediate = 1;
-    if (config.tier === 'Advanced') d.Advanced = 1;
-
-    if (config.career === 'uni') d.UniQual = 1;
-    if (config.career === 'career') d.GovCareer = 1;
-
-    if (config.mentorship === 'medium') d.MentorMedium = 1;
-    if (config.mentorship === 'high') d.MentorHigh = 1;
-
-    if (config.delivery === 'inperson') d.InPerson = 1;
-    if (config.delivery === 'online') d.Online = 1;
-    // blended is reference
-
-    if (config.responseDays === 15) d.Resp15 = 1;
-    if (config.responseDays === 7) d.Resp7 = 1;
-    // 30 days is reference
-
-    return d;
-}
-
-/**
- * Compute deterministic utility of the configured FETP option and endorsement probability
- * for a given coefficient set.
- */
-function computeUtilityAndEndorsement(config, coeffs) {
-    const d = getAttributeDummies(config);
-
-    const nonCostUtility =
-        coeffs.ASC_A +
-        d.Intermediate * (coeffs.Intermediate || 0) +
-        d.Advanced * (coeffs.Advanced || 0) +
-        d.UniQual * (coeffs.UniQual || 0) +
-        d.GovCareer * (coeffs.GovCareer || 0) +
-        d.MentorMedium * (coeffs.MentorMedium || 0) +
-        d.MentorHigh * (coeffs.MentorHigh || 0) +
-        d.InPerson * (coeffs.InPerson || 0) +
-        d.Online * (coeffs.Online || 0) +
-        d.Resp15 * (coeffs.Resp15 || 0) +
-        d.Resp7 * (coeffs.Resp7 || 0);
-
-    const costInThousands = config.costPerTraineePerMonth / 1000;
-    const costUtility = coeffs.Cost * costInThousands;
-
-    const vFetp = nonCostUtility + costUtility;
-
-    const deltaV = -coeffs.ASC_OptOut + vFetp;
-    const endorseProb = 1 / (1 + Math.exp(-deltaV));
-
-    return {
-        nonCostUtility: nonCostUtility,
-        costUtility: costUtility,
-        vFetp: vFetp,
-        deltaV: deltaV,
-        endorseProb: endorseProb
-    };
-}
-
-/**
- * Total WTP per trainee per month (INR) by summing WTP for all active attribute levels.
- * Uses WTP_k = - beta_k / beta_cost, then multiplies by 1000 to convert to INR.
- */
-function computeTotalWtpPerTraineePerMonth(config, coeffs) {
-    const d = getAttributeDummies(config);
-    const betaCost = coeffs.Cost;
-    if (betaCost === 0) return 0;
-
-    let totalThousand = 0;
-
-    if (d.Intermediate) totalThousand += - (coeffs.Intermediate || 0) / betaCost;
-    if (d.Advanced) totalThousand += - (coeffs.Advanced || 0) / betaCost;
-
-    if (d.UniQual) totalThousand += - (coeffs.UniQual || 0) / betaCost;
-    if (d.GovCareer) totalThousand += - (coeffs.GovCareer || 0) / betaCost;
-
-    if (d.MentorMedium) totalThousand += - (coeffs.MentorMedium || 0) / betaCost;
-    if (d.MentorHigh) totalThousand += - (coeffs.MentorHigh || 0) / betaCost;
-
-    if (d.InPerson) totalThousand += - (coeffs.InPerson || 0) / betaCost;
-    if (d.Online) totalThousand += - (coeffs.Online || 0) / betaCost;
-
-    if (d.Resp15) totalThousand += - (coeffs.Resp15 || 0) / betaCost;
-    if (d.Resp7) totalThousand += - (coeffs.Resp7 || 0) / betaCost;
-
-    return totalThousand * 1000; // INR per trainee per month
-}
-
-/**
- * WTP from outbreak response only (Resp15 or Resp7) per trainee per month (INR).
- */
-function computeResponseWtpPerTraineePerMonth(config, coeffs) {
-    const d = getAttributeDummies(config);
-    const betaCost = coeffs.Cost;
-    if (betaCost === 0) return 0;
-
-    let totalThousand = 0;
-    if (d.Resp15 && coeffs.Resp15) {
-        totalThousand += - coeffs.Resp15 / betaCost;
-    }
-    if (d.Resp7 && coeffs.Resp7) {
-        totalThousand += - coeffs.Resp7 / betaCost;
-    }
-
-    return totalThousand * 1000;
-}
-
-/**
- * Economic cost per cohort (INR), using cost per trainee per month, cohort size,
- * duration and an optional simple opportunity cost share.
- */
-function computeEconomicCostPerCohort(config) {
-    const epiTier = STEPS_EPI_CONFIG[config.tier] || STEPS_EPI_CONFIG.Frontline;
-    const durationMonths = epiTier.durationMonths;
-
-    const programmeCost =
-        config.costPerTraineePerMonth *
-        config.cohortSize *
-        durationMonths;
-
-    // Simple opportunity cost share, adjust if you have template specific values
-    const oppShare = config.includeOppCost ? 0.20 : 0.0;
-    const oppCost = programmeCost * oppShare;
-
-    return programmeCost + oppCost;
-}
-
-/**
- * Epidemiology based outbreak benefit per cohort (INR), using outbreak multipliers,
- * value per outbreak, planning horizon and endorsement.
- */
-function computeEpiOutbreakBenefitPerCohort(config, endorsementProb) {
-    const epiTier = STEPS_EPI_CONFIG[config.tier] || STEPS_EPI_CONFIG.Frontline;
-    const outbreaksPerYearPerCohort =
-        epiTier.outbreaksPerCohortPerYear * endorsementProb;
-    const benefitOutbreaks =
-        outbreaksPerYearPerCohort *
-        epiTier.valuePerOutbreak *
-        STEPS_EPI_CONFIG.planningHorizonYears;
-    return benefitOutbreaks;
-}
-
-/**
- * Build one row of sensitivity results for a given coefficient set.
- */
-function buildSensitivityRow(label, prefLabel, config, coeffs) {
-    const util = computeUtilityAndEndorsement(config, coeffs);
-    const endorse = util.endorseProb;
-
-    const costPerCohort = computeEconomicCostPerCohort(config);
-
-    const wtpPerTraineePerMonth = computeTotalWtpPerTraineePerMonth(config, coeffs);
-    const wtpRespPerTraineePerMonth = computeResponseWtpPerTraineePerMonth(config, coeffs);
-
-    const durationMonths =
-        (STEPS_EPI_CONFIG[config.tier] || STEPS_EPI_CONFIG.Frontline).durationMonths;
-
-    const wtpTotalPerCohort =
-        wtpPerTraineePerMonth *
-        config.cohortSize *
-        durationMonths;
-
-    const wtpRespPerCohort =
-        wtpRespPerTraineePerMonth *
-        config.cohortSize *
-        durationMonths;
-
-    const epiOutbreakBenefitPerCohort =
-        computeEpiOutbreakBenefitPerCohort(config, endorse);
-
-    const effectiveWtpPerCohort = wtpTotalPerCohort * endorse;
-
-    const bcrWtpOnly = costPerCohort > 0 ? (wtpTotalPerCohort / costPerCohort) : 0;
-    const npvWtpOnly = wtpTotalPerCohort - costPerCohort;
-
-    const combinedBenefit = wtpTotalPerCohort + epiOutbreakBenefitPerCohort;
-    const bcrCombined = costPerCohort > 0 ? (combinedBenefit / costPerCohort) : 0;
-    const npvCombined = combinedBenefit - costPerCohort;
-
-    const tr = document.createElement('tr');
-
-    function addCell(text, numeric) {
-        const td = document.createElement('td');
-        if (numeric) td.classList.add('numeric-cell');
-        td.textContent = text;
-        tr.appendChild(td);
-    }
-
-    addCell(label, false);
-    addCell(prefLabel, false);
-    addCell(formatInr(costPerCohort), true);
-    addCell(formatInr(wtpTotalPerCohort), true);
-    addCell(formatInr(wtpRespPerCohort), true);
-    addCell(formatInr(epiOutbreakBenefitPerCohort), true);
-    addCell(formatInr(effectiveWtpPerCohort), true);
-    addCell(formatNumber(bcrWtpOnly), true);
-    addCell(formatInr(npvWtpOnly), true);
-    addCell(formatNumber(bcrCombined), true);
-    addCell(formatInr(npvCombined), true);
-
-    return tr;
-}
-
-/**
- * Simple formatters for display.
- */
-function formatInr(x) {
-    if (!isFinite(x)) return '';
-    return Math.round(x).toLocaleString('en-IN');
-}
-
-function formatNumber(x) {
-    if (!isFinite(x)) return '';
-    return x.toFixed(2);
-}
-
-/**
- * Main renderer for the Sensitivity / DCE Benefits tab.
- */
-function updateSensitivityTab() {
-    const tbody = document.getElementById('sensitivity-body');
-    if (!tbody) return;
-
-    const config = readConfigFromUI();
-
-    // Clear existing rows
-    while (tbody.firstChild) {
-        tbody.removeChild(tbody.firstChild);
-    }
-
-    // Scenario 1: overall mixed logit
-    tbody.appendChild(
-        buildSensitivityRow(
-            'Base configuration',
-            'Overall (mixed logit)',
-            config,
-            STEPS_PREF_MIXED
-        )
-    );
-
-    // Scenario 2: supportive stakeholders (latent class 2)
-    tbody.appendChild(
-        buildSensitivityRow(
-            'Base configuration',
-            'Supportive class',
-            config,
-            STEPS_PREF_CLASS2
-        )
-    );
-}
-
-/**
- * Attach listeners so that the sensitivity tab updates when inputs change.
- * Add or remove selectors depending on your actual HTML.
- */
-function attachSensitivityListeners() {
-    const selectors = [
-        'input[name="tier"]',
-        '#config-tier',
-        'input[name="mentorship"]',
-        '#config-mentorship',
-        'input[name="delivery"]',
-        '#config-delivery',
-        'input[name="response"]',
-        '#config-response',
-        'input[name="career"]',
-        '#config-career',
-        '#config-cost',
-        '#cost-per-trainee',
-        '#config-cohort-size',
-        '#cohort-size',
-        '#config-num-cohorts',
-        '#num-cohorts',
-        '#config-include-opp',
-        '#include-opp-cost'
-    ];
-
-    selectors.forEach(function (sel) {
-        const nodes = document.querySelectorAll(sel);
-        nodes.forEach(function (node) {
-            node.addEventListener('change', updateSensitivityTab);
-            node.addEventListener('input', updateSensitivityTab);
-        });
-    });
-}
-
-// Initialise on load
-document.addEventListener('DOMContentLoaded', function () {
-    attachSensitivityListeners();
-    updateSensitivityTab();
-});
-

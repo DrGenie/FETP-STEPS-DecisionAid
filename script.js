@@ -1,6 +1,6 @@
 /* ===================================================
    STEPS FETP India Decision Aid
-   Premium, production-ready script
+   Script with interactive DCE sensitivity tab
    =================================================== */
 
 /* ===========================
@@ -70,14 +70,8 @@ const LC2_COEFS = {
 };
 
 /* ===========================
-   Cost templates
+   Cost templates (fallback)
    =========================== */
-
-/*
-   Templates use:
-   - directShare: shares sum to 1 across named components
-   - oppRate: opportunity cost as a share of direct programme cost
-*/
 
 const COST_TEMPLATES = {
     frontline: {
@@ -166,7 +160,7 @@ const COST_TEMPLATES = {
     }
 };
 
-/* External JSON driven cost configuration (full templates) */
+/* External JSON-driven cost configuration (if present) */
 let COST_CONFIG = null;
 
 /* ===========================
@@ -200,7 +194,6 @@ const DEFAULT_EPI_SETTINGS = {
     }
 };
 
-/* Response-time multipliers for epi-based outbreak benefits */
 const RESPONSE_TIME_MULTIPLIERS = {
     "30": 1.0,
     "15": 1.2,
@@ -279,9 +272,6 @@ function logistic(x) {
     return 1 / (1 + Math.exp(-x));
 }
 
-/**
- * Design utility (sum of attribute level coefficients excluding the ASC).
- */
 function computeNonCostUtility(cfg, coefs) {
     const uTier = coefs.tier[cfg.tier] || 0;
     const uCareer = coefs.career[cfg.career] || 0;
@@ -291,10 +281,6 @@ function computeNonCostUtility(cfg, coefs) {
     return uTier + uCareer + uMentor + uDelivery + uResponse;
 }
 
-/**
- * Compute WTP components per trainee per month (INR) for each attribute
- * and the total WTP for the configuration.
- */
 function computeWtpComponents(cfg, coefs) {
     const betaCost = coefs.costPerThousand || 0;
     if (!betaCost) {
@@ -421,13 +407,9 @@ function getProgrammeDurationMonths(tier) {
     return 3;
 }
 
-/**
- * Prefer external cost_config.json if present.
- */
 function getCurrentCostTemplate(tier) {
     let chosenId = state.currentCostSourceId || null;
 
-    // Prefer external JSON configuration
     if (COST_CONFIG && COST_CONFIG[tier]) {
         const tierConfig = COST_CONFIG[tier];
         const ids = Object.keys(tierConfig);
@@ -444,7 +426,6 @@ function getCurrentCostTemplate(tier) {
 
             const totalNonOpp = nonOpp.reduce((sum, c) => sum + (c.amountTotal || 0), 0);
             const totalOpp = opp.reduce((sum, c) => sum + (c.amountTotal || 0), 0);
-
             const oppRate = totalNonOpp > 0 ? totalOpp / totalNonOpp : 0;
 
             const components = nonOpp.map((c, idx) => {
@@ -476,7 +457,6 @@ function getCurrentCostTemplate(tier) {
         }
     }
 
-    // Fallback: legacy stylised templates
     const templatesForTier = COST_TEMPLATES[tier] || {};
     const availableIds = Object.keys(templatesForTier);
     if (!availableIds.length) return null;
@@ -596,19 +576,20 @@ function computeEpi(cfg, endorseProb) {
 }
 
 /* ===========================
-   DCE-based benefit profiles and CBA (Sensitivity tab)
+   DCE benefits & sensitivity
    =========================== */
 
-/**
- * Sensitivity endorsement rate from input if present.
- */
+/* Endorsement override for sensitivity tab
+   - If user enters 70 treat as 70%
+   - If user enters 0.7 treat as 70%   */
 function getEndorsementRateForSensitivity(defaultRate) {
     let rate = defaultRate;
-    const input = document.getElementById("dce-endorsement-rate");
+    const input =
+        document.getElementById("sens-endorsement-rate") ||
+        document.getElementById("dce-endorsement-rate");
     if (input) {
         const raw = parseFloat(input.value);
         if (!isNaN(raw) && raw > 0) {
-            // If user entered "70" treat as 70%, otherwise treat as proportion
             rate = raw > 1.5 ? raw / 100 : raw;
         }
     }
@@ -618,17 +599,42 @@ function getEndorsementRateForSensitivity(defaultRate) {
     return rate;
 }
 
-/**
- * Compute DCE-based benefit profiles (overall / supportive class)
- * including total WTP, outbreak-response WTP and CBA metrics.
- */
-function computeDceCbaProfiles(cfg, costs, epi) {
+/* DCE and EPI multipliers for the sensitivity tab
+   - Expect values in percent form (e.g. 100 = baseline) but
+     also allow direct multipliers between 0 and 2. */
+function getSensitivityScales() {
+    function parseScale(id) {
+        const el = document.getElementById(id);
+        if (!el) return 1;
+        let v = parseFloat(el.value);
+        if (isNaN(v) || v <= 0) return 1;
+        if (v > 2) v = v / 100;
+        return v;
+    }
+    return {
+        dceScale: parseScale("sens-dce-benefit-scale"),
+        epiScale: parseScale("sens-epi-benefit-scale")
+    };
+}
+
+/* Compute DCE-based benefit profiles and simple CBA
+   options:
+     - useUiOverrides: if true, use sensitivity tab controls
+     - dceScale: multiplier for all DCE benefits
+     - epiScale: multiplier for outbreak benefits */
+function computeDceCbaProfiles(cfg, costs, epi, options) {
+    const opts = options || {};
+    const useUiOverrides = !!opts.useUiOverrides;
+    const dceScale = typeof opts.dceScale === "number" ? opts.dceScale : 1;
+    const epiScale = typeof opts.epiScale === "number" ? opts.epiScale : 1;
+
     const durationMonths = costs.durationMonths || 0;
     const trainees = cfg.traineesPerCohort || 0;
     const cohorts = cfg.numberOfCohorts || 0;
     const totalCostAllCohorts = costs.totalEconomicCostPerCohort * cohorts;
 
-    const epiOutbreakBenefitAllCohorts = epi.benefitOutbreaksAllCohorts || 0;
+    const epiOutbreakBenefitAllCohorts =
+        (epi.benefitOutbreaksAllCohorts || 0) * epiScale;
 
     const overallUtil = computeEndorsementAndWtp(cfg, "mxl");
     const supportiveUtil = computeEndorsementAndWtp(cfg, "lc2");
@@ -636,26 +642,40 @@ function computeDceCbaProfiles(cfg, costs, epi) {
     function buildProfile(label, utilObj) {
         const wtpPerTraineePerMonth = utilObj.wtpConfig;
         const components = utilObj.wtpComponents || {};
-        const wtpRespPerTraineePerMonth = typeof components.response === "number" ? components.response : 0;
+        const wtpRespPerTraineePerMonth =
+            typeof components.response === "number" ? components.response : 0;
 
         const wtpPerCohort = (wtpPerTraineePerMonth || 0) * trainees * durationMonths;
-        const wtpRespPerCohort = (wtpRespPerTraineePerMonth || 0) * trainees * durationMonths;
+        const wtpRespPerCohort =
+            (wtpRespPerTraineePerMonth || 0) * trainees * durationMonths;
 
-        const wtpAllCohorts = wtpPerCohort * cohorts;
-        const wtpRespAllCohorts = wtpRespPerCohort * cohorts;
+        const baseWtpAllCohorts = wtpPerCohort * cohorts;
+        const baseWtpRespAllCohorts = wtpRespPerCohort * cohorts;
 
-        const endorsementRate = getEndorsementRateForSensitivity(utilObj.endorseProb || 0);
+        const wtpAllCohorts = baseWtpAllCohorts * dceScale;
+        const wtpRespAllCohorts = baseWtpRespAllCohorts * dceScale;
+
+        const baseRate = utilObj.endorseProb || 0;
+        const endorsementRate = useUiOverrides
+            ? getEndorsementRateForSensitivity(baseRate)
+            : baseRate;
+
         const effectiveBenefitAllCohorts = wtpAllCohorts * endorsementRate;
 
         const npvDce = wtpAllCohorts - totalCostAllCohorts;
-        const bcrDce = totalCostAllCohorts > 0 ? (wtpAllCohorts / totalCostAllCohorts) : null;
+        const bcrDce =
+            totalCostAllCohorts > 0 ? wtpAllCohorts / totalCostAllCohorts : null;
 
         const npvEffective = effectiveBenefitAllCohorts - totalCostAllCohorts;
-        const bcrEffective = totalCostAllCohorts > 0 ? (effectiveBenefitAllCohorts / totalCostAllCohorts) : null;
+        const bcrEffective =
+            totalCostAllCohorts > 0
+                ? effectiveBenefitAllCohorts / totalCostAllCohorts
+                : null;
 
         const combinedBenefit = wtpAllCohorts + epiOutbreakBenefitAllCohorts;
         const npvCombined = combinedBenefit - totalCostAllCohorts;
-        const bcrCombined = totalCostAllCohorts > 0 ? (combinedBenefit / totalCostAllCohorts) : null;
+        const bcrCombined =
+            totalCostAllCohorts > 0 ? combinedBenefit / totalCostAllCohorts : null;
 
         return {
             label,
@@ -701,10 +721,14 @@ function computeFullResults(cfg) {
     const totalCostAllCohorts = costs.totalEconomicCostPerCohort * cfg.numberOfCohorts;
     const totalBenefitAllCohorts = epi.totalBenefitAllCohorts;
     const netBenefitAllCohorts = totalBenefitAllCohorts - totalCostAllCohorts;
+    const bcr =
+        totalCostAllCohorts > 0
+            ? totalBenefitAllCohorts / totalCostAllCohorts
+            : null;
 
-    const bcr = totalCostAllCohorts > 0 ? totalBenefitAllCohorts / totalCostAllCohorts : null;
-
-    const dceCba = computeDceCbaProfiles(cfg, costs, epi);
+    const dceCba = computeDceCbaProfiles(cfg, costs, epi, {
+        useUiOverrides: false
+    });
 
     return {
         cfg,
@@ -1032,7 +1056,6 @@ function updateConfigSummary(results) {
         endorsementValueEl.textContent = formatPercent(endorsementPercent, 1);
     }
 
-    // Support either headline-status-pill or headline-status-tag
     const headlineStatusEl =
         document.getElementById("headline-status-pill") ||
         document.getElementById("headline-status-tag");
@@ -1226,21 +1249,31 @@ function updateNationalSimulation(results) {
 }
 
 /* ===========================
-   Sensitivity / DCE Benefits tab
+   Sensitivity tab (interactive)
    =========================== */
 
 function updateSensitivityTab(results) {
     const tableBody = document.querySelector("#dce-sensitivity-table tbody");
-    if (!tableBody || !results || !results.dceCba) return;
+    if (!tableBody || !results) return;
 
-    const { profiles, totalCostAllCohorts, epiOutbreakBenefitAllCohorts } = results.dceCba;
+    // Read sensitivity multipliers
+    const { dceScale, epiScale: rawEpiScale } = getSensitivityScales();
+
+    const epiToggle = document.getElementById("dce-epi-benefit-toggle");
+    const epiActive = !epiToggle || epiToggle.checked;
+    const epiScale = epiActive ? rawEpiScale : 0;
+
+    const dceCba = computeDceCbaProfiles(results.cfg, results.costs, results.epi, {
+        useUiOverrides: true,
+        dceScale,
+        epiScale
+    });
+
+    const { profiles, totalCostAllCohorts, epiOutbreakBenefitAllCohorts } = dceCba;
 
     tableBody.innerHTML = "";
 
     if (!profiles) return;
-
-    const epiToggle = document.getElementById("dce-epi-benefit-toggle");
-    const epiActive = !epiToggle || epiToggle.checked;
 
     const costText = formatCurrency(totalCostAllCohorts, state.currency);
     const epiBenefitText = epiActive
@@ -1280,7 +1313,31 @@ function updateSensitivityTab(results) {
     if (shareEl && profiles.overall && profiles.overall.wtpAllCohorts > 0) {
         const share = (profiles.overall.wtpRespAllCohorts / profiles.overall.wtpAllCohorts) * 100;
         const safeShare = isFinite(share) ? share.toFixed(1) : "0.0";
-        shareEl.textContent = `${safeShare} % of the DCE-based benefit for this configuration comes from outbreak response capacity (overall mixed logit).`;
+        shareEl.textContent = `${safeShare} % of the DCE-based benefit for this configuration comes from outbreak response capacity (overall mixed logit) under the current sensitivity settings.`;
+    }
+
+    // Small summary cards inside the sensitivity tab
+    const sensSummary = document.getElementById("dce-sensitivity-summary");
+    if (sensSummary && profiles.overall) {
+        const p = profiles.overall;
+        sensSummary.innerHTML = `
+            <div class="sens-summary-card">
+                <div class="sens-summary-label">Overall DCE benefit (all cohorts)</div>
+                <div class="sens-summary-value">${formatCurrency(p.wtpAllCohorts, state.currency)}</div>
+            </div>
+            <div class="sens-summary-card">
+                <div class="sens-summary-label">Effective benefit (endorsers only)</div>
+                <div class="sens-summary-value">${formatCurrency(p.effectiveBenefitAllCohorts, state.currency)}</div>
+            </div>
+            <div class="sens-summary-card">
+                <div class="sens-summary-label">BCR (DCE benefit only)</div>
+                <div class="sens-summary-value">${p.bcrDce !== null && isFinite(p.bcrDce) ? p.bcrDce.toFixed(2) : "-"}</div>
+            </div>
+            <div class="sens-summary-card">
+                <div class="sens-summary-label">BCR (DCE + outbreak benefits)</div>
+                <div class="sens-summary-value">${epiActive && p.bcrCombined !== null && isFinite(p.bcrCombined) ? p.bcrCombined.toFixed(2) : "-"}</div>
+            </div>
+        `;
     }
 }
 
@@ -1583,9 +1640,6 @@ function loadEpiConfigIfPresent() {
         });
 }
 
-/**
- * Load full cost templates from cost_config.json if present.
- */
 function loadCostConfigIfPresent() {
     fetch("cost_config.json")
         .then(resp => {
@@ -1773,9 +1827,7 @@ function saveScenarioFromCurrentResults() {
 
     try {
         window.localStorage.setItem("stepsScenarios", JSON.stringify(state.scenarios));
-    } catch (e) {
-        // ignore storage errors
-    }
+    } catch (e) {}
 
     renderScenarioTable();
     showToast("Scenario saved to portfolio.", "success");
@@ -2324,6 +2376,12 @@ const TOUR_STEPS = [
         text: "The national simulation scales costs, benefits, graduates and outbreak responses by the number of cohorts, helping you discuss country level implications quickly."
     },
     {
+        tab: "sensitivity",
+        selector: "#tab-sensitivity .card:first-child",
+        title: "DCE benefits and sensitivity",
+        text: "This tab now lets you adjust endorsement, benefit multipliers and outbreak assumptions directly and see the recalculated DCE-based benefit cost ratios and net benefits for each model."
+    },
+    {
         tab: "technical",
         selector: "#tab-technical .card:first-child",
         title: "Advanced settings and assumptions",
@@ -2362,8 +2420,6 @@ function renderTourStep() {
     showTabFromTour(step.tab);
 
     const target = document.querySelector(step.selector);
-    // If the target is missing (e.g. HTML changed), still show the tour popover
-    // anchored to a safe default position so the tour does not silently break.
 
     const titleEl = document.getElementById("tour-title");
     const bodyEl = document.getElementById("tour-body");
@@ -2409,9 +2465,7 @@ function startTour(forceRestart) {
     state.tour.seen = true;
     try {
         window.localStorage.setItem("stepsTourSeen_v2", "1");
-    } catch (e) {
-        // ignore
-    }
+    } catch (e) {}
     renderTourStep();
 }
 
@@ -2512,7 +2566,7 @@ function setupTechnicalAppendix() {
 }
 
 /* ===========================
-   Configuration and event wiring
+   Configuration and events
    =========================== */
 
 function applyConfiguration(silent) {
@@ -2649,20 +2703,33 @@ function setupCoreInteractions() {
     const epiBenefitToggle = document.getElementById("dce-epi-benefit-toggle");
     if (epiBenefitToggle) {
         epiBenefitToggle.addEventListener("change", () => {
-            if (state.lastResults) {
-                updateSensitivityTab(state.lastResults);
-            }
+            if (state.lastResults) updateSensitivityTab(state.lastResults);
         });
     }
 
-    const endorsementRateInput = document.getElementById("dce-endorsement-rate");
+    // Sensitivity controls: endorsement override and multipliers
+    const endorsementRateInput =
+        document.getElementById("sens-endorsement-rate") ||
+        document.getElementById("dce-endorsement-rate");
     if (endorsementRateInput) {
         endorsementRateInput.addEventListener("change", () => {
             if (!state.lastResults) return;
-            const cfg = state.lastResults.cfg;
-            const costs = state.lastResults.costs;
-            const epi = state.lastResults.epi;
-            state.lastResults.dceCba = computeDceCbaProfiles(cfg, costs, epi);
+            updateSensitivityTab(state.lastResults);
+        });
+    }
+
+    const dceScaleInput = document.getElementById("sens-dce-benefit-scale");
+    if (dceScaleInput) {
+        dceScaleInput.addEventListener("input", () => {
+            if (!state.lastResults) return;
+            updateSensitivityTab(state.lastResults);
+        });
+    }
+
+    const epiScaleInput = document.getElementById("sens-epi-benefit-scale");
+    if (epiScaleInput) {
+        epiScaleInput.addEventListener("input", () => {
+            if (!state.lastResults) return;
             updateSensitivityTab(state.lastResults);
         });
     }

@@ -802,294 +802,77 @@
         </div>
     </section>
 
-    <!-- SENSITIVITY / DCE BENEFITS TAB -->
+       <!-- SENSITIVITY / DCE BENEFITS TAB -->
     <section id="tab-sensitivity" class="tab-panel">
-        <div class="grid-two-stretch"
+        <div class="card"
              data-tour-step="sensitivity"
              data-tour-title="Sensitivity and DCE benefit definitions"
-             data-tour-content="This tab turns the discrete choice experiment coefficients, costs and epidemiological multipliers into explicit cost–benefit metrics, including WTP-based and epi-based benefits for different stakeholder classes.">
-            <div class="card">
-                <div class="card-header-with-info">
-                    <h2>DCE benefit formulas and decompositions</h2>
-                    <button type="button" class="info-icon"
-                            aria-label="DCE benefit formulas information"
-                            data-tooltip="Shows the exact formulas used to compute WTP-based benefits per trainee, per cohort and nationally, as well as outbreak-response-specific WTP and endorsement-adjusted benefits.">
-                        i
-                    </button>
-                </div>
-                <p>
-                    This panel documents how STEPS converts discrete choice experiment estimates into benefit measures
-                    that can be used in cost–benefit analysis. All calculations are performed per configuration
-                    and update when you apply a new configuration on the Configuration tab.
-                </p>
-
-                <h3>1. Total WTP per configuration</h3>
-                <p>
-                    For each active attribute level <code>k</code> in the configuration:
-                </p>
-                <pre class="formula-block">
-Let β<sub>k</sub>   = coefficient for level k
-Let β<sub>cost</sub> = cost coefficient (per 1,000 INR / trainee / month)
-
-WTP for level k (thousand INR / trainee / month):
-    WTP<sub>k</sub> = - β<sub>k</sub> / β<sub>cost</sub>
-
-Total WTP per trainee per month (thousand INR):
-    WTP<sub>config,kINR</sub> = Σ<sub>k∈active levels</sub> ( - β<sub>k</sub> / β<sub>cost</sub> )
-
-Total WTP per trainee per month (INR):
-    WTP<sub>config,INR</sub> = 1,000 × WTP<sub>config,kINR</sub>
-
-Total WTP per cohort (INR):
-    B<sub>WTP,cohort</sub> = WTP<sub>config,INR</sub> × Trainees_per_cohort × Duration_months
-
-Total WTP, national (INR):
-    B<sub>WTP,national</sub> = B<sub>WTP,cohort</sub> × Number_of_cohorts
-                </pre>
-                <p class="hint">
-                    STEPS computes these quantities separately for the overall mixed logit and the supportive latent class,
-                    so that you can compare benefit measures across stakeholder groups.
-                </p>
-
-                <h3>2. Outbreak response capacity as a benefit component</h3>
-                <p>
-                    Let 30 days be the reference response time. For 15 and 7 days:
-                </p>
-                <pre class="formula-block">
-Let β<sub>Resp15</sub>, β<sub>Resp7</sub> be the response-time coefficients (vs 30 days).
-
-Per trainee per month (thousand INR):
-    WTP<sub>Resp15,kINR</sub> = - β<sub>Resp15</sub> / β<sub>cost</sub>
-    WTP<sub>Resp7,kINR</sub>  = - β<sub>Resp7</sub>  / β<sub>cost</sub>
-
-Per trainee per month (INR):
-    WTP<sub>Resp15,INR</sub> = 1,000 × WTP<sub>Resp15,kINR</sub>
-    WTP<sub>Resp7,INR</sub>  = 1,000 × WTP<sub>Resp7,kINR</sub>
-
-Per cohort:
-    B<sub>Resp,cohort</sub> = WTP<sub>Resp,INR</sub> × Trainees_per_cohort × Duration_months
-
-Share of total WTP from response capacity:
-    Share<sub>Resp</sub> = B<sub>Resp,cohort</sub> / B<sub>WTP,cohort</sub>
-                </pre>
-                <p>
-                    STEPS reports response-capacity WTP both as a monetary amount and as a share of total WTP,
-                    which helps explain how much of the economic case is driven by faster detection and response.
-                </p>
-
-                <h3>3. Endorsement-adjusted “effective” benefits</h3>
-                <p>
-                    Because not all stakeholders endorse a configuration, you can optionally down-weight WTP by the
-                    endorsement rate to obtain an “effective” preference-based benefit:
-                </p>
-                <pre class="formula-block">
-Let E be the endorsement rate (0–1) for the chosen model.
-
-Effective WTP benefit per cohort:
-    B<sub>WTP,eff,cohort</sub> = E × B<sub>WTP,cohort</sub>
-
-Effective WTP benefit, national:
-    B<sub>WTP,eff,national</sub> = E × B<sub>WTP,national</sub>
-                </pre>
-                <p class="hint">
-                    This is treated as a sensitivity construct: it does not change the raw WTP but shows the
-                    implied benefits if you only count the share of stakeholders who would endorse the option.
-                </p>
-
-                <h3>4. Epi-based outbreak benefit linked to response time</h3>
-                <p>
-                    The outbreak-related epidemiological benefit can be tied to response time using simple multipliers:
-                </p>
-                <pre class="formula-block">
-Base outbreak benefit per cohort over the planning horizon:
-    B<sub>outbreak,base</sub> =
-        Outbreaks_per_year_per_cohort × Value_per_outbreak × Planning_horizon_years
-
-Response-time multipliers (example):
-    m<sub>30</sub> = 1.0
-    m<sub>15</sub> = 1.2
-    m<sub>7</sub>  = 1.5
-
-Outbreak benefit per cohort with response level r ∈ {30, 15, 7}:
-    B<sub>outbreak,r</sub> = B<sub>outbreak,base</sub> × m<sub>r</sub>
-
-Incremental epi-based benefit vs 30 days:
-    ΔB<sub>epi,15vs30</sub> = B<sub>outbreak,15</sub> - B<sub>outbreak,30</sub>
-    ΔB<sub>epi,7vs30</sub>  = B<sub>outbreak,7</sub>  - B<sub>outbreak,30</sub>
-                </pre>
-                <p>
-                    These incremental values can be combined with WTP-based benefits or used on their own,
-                    depending on the chosen CBA specification.
-                </p>
-
-                <h3>5. Cost–benefit metrics per configuration</h3>
-                <p>
-                    For a configuration <code>s</code> and a chosen benefit definition <code>B<sub>s</sub></code>
-                    (for example, pure WTP, endorsement-adjusted WTP, epi-only or WTP + epi), STEPS uses:
-                </p>
-                <pre class="formula-block">
-Let C<sub>s</sub>  = total economic cost per cohort (programme + opportunity cost, if included)
-Let B<sub>s</sub>  = selected benefit per cohort (INR)
-
-Benefit–cost ratio (per cohort):
-    BCR<sub>s</sub> = B<sub>s</sub> / C<sub>s</sub>
-
-Net present value (per cohort, undiscounted within horizon):
-    NPV<sub>s</sub> = B<sub>s</sub> - C<sub>s</sub>
-
-Incremental comparison between scenario 2 and 1:
-    ΔNPV = (B<sub>2</sub> - B<sub>1</sub>) - (C<sub>2</sub> - C<sub>1</sub>)
-    ΔBCR = (B<sub>2</sub> - B<sub>1</sub>) / (C<sub>2</sub> - C<sub>1</sub>)
-                </pre>
-                <p class="note">
-                    In this tab, STEPS organises these metrics by benefit definition and stakeholder class (overall vs
-                    supportive class), so that you can see a compact CBA table for each configuration.
-                </p>
+             data-tour-content="This tab summarises how programme costs and different benefit definitions compare across the current configuration and any saved scenarios, using the discrete choice experiment, cost templates and epidemiological multipliers.">
+            <div class="card-header-with-info">
+                <h2>Sensitivity and DCE benefit summary</h2>
+                <button type="button"
+                        class="info-icon"
+                        aria-label="Sensitivity and DCE benefit summary information"
+                        data-tooltip="This table shows cost, willingness-to-pay and epidemiological benefit measures for the current configuration and each saved scenario, including benefit–cost ratios and endorsement-adjusted effective benefits.">
+                    i
+                </button>
             </div>
 
-            <div class="card card-secondary">
-                <div class="card-header-with-info">
-                    <h2>DCE benefit-based CBA summary</h2>
-                    <button type="button" class="info-icon"
-                            aria-label="DCE benefit-based CBA summary information"
-                            data-tooltip="This table shows cost, WTP-based benefits, outbreak-response WTP, epi-based outbreak benefits and cost–benefit metrics for different benefit definitions and stakeholder classes.">
-                        i
-                    </button>
-                </div>
-                <p>
-                    This panel turns the formulas into a compact sensitivity table. Each row represents a combination of:
-                </p>
-                <ul class="plain-list">
-                    <li><strong>Stakeholder class</strong> (overall mixed logit or supportive latent class), and</li>
-                    <li><strong>Benefit definition</strong> (pure WTP, endorsement-adjusted WTP, epi-only or WTP + epi).</li>
-                </ul>
-                <p>
-                    The table reports cost, WTP-based benefits, the share attributable to outbreak response capacity,
-                    epi-based outbreak benefits (if activated) and benefit–cost metrics.
-                </p>
+            <p>
+                This view turns the discrete choice experiment estimates, cost templates and epidemiological multipliers
+                into a compact sensitivity table. Each row represents a scenario, starting with the current configuration
+                and followed by any saved scenarios. For each scenario, STEPS recomputes endorsement, economic cost per
+                cohort, willingness-to-pay based benefits, outbreak-response contributions, epidemiological outbreak
+                benefits and combined benefit–cost metrics using the selected preference model and opportunity cost setting.
+            </p>
+            <p>
+                Use this table to compare how different benefit definitions perform relative to economic cost. You can
+                see results based on pure DCE willingness to pay, combined DCE and epidemiological outbreak benefits, and
+                endorsement-adjusted effective benefits that weight total benefits by the share of stakeholders who would
+                endorse each configuration.
+            </p>
+            <p class="note">
+                Full formulas and worked numerical examples are set out in the technical appendix, including how
+                willingness to pay is constructed from the discrete choice experiment and how outbreak-related
+                epidemiological benefits are linked to response time.
+                <a href="technical-appendix.html" target="_blank">See the technical appendix for full formulas and worked examples.</a>
+            </p>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>
-                            Apply endorsement rate to WTP (effective benefits)
-                            <button type="button" class="info-icon"
-                                    aria-label="Apply endorsement rate information"
-                                    data-tooltip="When on, the table includes rows where WTP-based benefits are multiplied by the endorsement rate, giving an endorsement-adjusted (‘effective’) benefit. When off, only raw WTP is shown.">
-                                i
-                            </button>
-                        </label>
-                        <button type="button" id="sens-endorsement-toggle" class="switch-pill on">
-                            <span class="switch-knob"></span>
-                            <span class="switch-label">Effective WTP rows included</span>
-                        </button>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            Include epi-based outbreak benefits
-                            <button type="button" class="info-icon"
-                                    aria-label="Include epi-based outbreak benefits information"
-                                    data-tooltip="When on, the table includes epi-only and WTP + epi benefit definitions, using the outbreak response multipliers from the epidemiological configuration.">
-                                i
-                            </button>
-                        </label>
-                        <button type="button" id="sens-epi-benefit-toggle" class="switch-pill on">
-                            <span class="switch-knob"></span>
-                            <span class="switch-label">Epi-based benefits included</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="metric-pair metric-pair-tight">
-                    <div class="metric-block">
-                        <span class="metric-label">Cost per cohort (economic)</span>
-                        <span class="metric-value" id="sens-cost-per-cohort">-</span>
-                        <p class="metric-caption">
-                            Mirrors the total economic cost per cohort reported in the Results tab and is used in all
-                            benefit–cost calculations in this table.
-                        </p>
-                    </div>
-                    <div class="metric-block">
-                        <span class="metric-label">Total WTP benefit per cohort (overall)</span>
-                        <span class="metric-value" id="sens-wtp-overall-cohort">-</span>
-                        <p class="metric-caption">
-                            Total WTP per trainee per month multiplied by trainees and duration, using the overall mixed logit model.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="metric-pair metric-pair-tight">
-                    <div class="metric-block">
-                        <span class="metric-label">WTP from outbreak response capacity (per cohort)</span>
-                        <span class="metric-value" id="sens-wtp-response-cohort">-</span>
-                        <p class="metric-caption">
-                            Component of total WTP attributable to moving from 30 days to the selected response time (15 or 7 days),
-                            per cohort, for the chosen stakeholder class.
-                        </p>
-                    </div>
-                    <div class="metric-block">
-                        <span class="metric-label">Share of total WTP from response capacity</span>
-                        <span class="metric-value" id="sens-wtp-response-share">-</span>
-                        <p class="metric-caption">
-                            WTP from outbreak response capacity divided by total WTP per cohort, expressed as a percentage.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="metric-pair metric-pair-tight">
-                    <div class="metric-block">
-                        <span class="metric-label">Epi-based outbreak benefit per cohort</span>
-                        <span class="metric-value" id="sens-epi-outbreak-benefit-cohort">-</span>
-                        <p class="metric-caption">
-                            Outbreak-related epidemiological benefit per cohort after applying the response-time multiplier
-                            corresponding to the selected configuration.
-                        </p>
-                    </div>
-                    <div class="metric-block">
-                        <span class="metric-label">Effective WTP benefit per cohort (overall)</span>
-                        <span class="metric-value" id="sens-wtp-effective-overall-cohort">-</span>
-                        <p class="metric-caption">
-                            Total WTP per cohort multiplied by the overall endorsement rate, when the effective-benefit option is activated.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="table-wrapper">
-                    <table class="data-table" id="sens-cba-table">
-                        <thead>
-                        <tr>
-                            <th>Class scenario</th>
-                            <th>Benefit definition</th>
-                            <th>Cost per cohort (INR)</th>
-                            <th>Total WTP benefit (INR)</th>
-                            <th>WTP from response capacity (INR)</th>
-                            <th>Epi-based outbreak benefit (INR)</th>
-                            <th>Total benefit used in CBA (INR)</th>
-                            <th>BCR (benefit / cost)</th>
-                            <th>NPV (benefit − cost)</th>
-                        </tr>
-                        </thead>
-                        <tbody id="sens-cba-table-body">
-                        <!-- Filled dynamically, e.g. rows for:
-                             Overall – pure WTP
-                             Overall – WTP × endorsement
-                             Overall – epi-only
-                             Overall – WTP + epi
-                             Supportive class – pure WTP
-                             Supportive class – WTP × endorsement
-                             Supportive class – epi-only
-                             Supportive class – WTP + epi
-                        -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <p class="hint">
-                    Use this table to read off benefit–cost metrics under alternative benefit definitions. For example,
-                    you can compare the BCR based on pure WTP for the overall model with the BCR based on WTP + epi-based
-                    outbreak benefits for the supportive class, or you can focus on endorsement-adjusted effective benefits
-                    if decision makers are particularly concerned about stakeholder buy-in.
-                </p>
+            <div class="table-wrapper">
+                <table class="data-table" id="sensitivity-table">
+                    <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Model</th>
+                        <th>Endorsement rate</th>
+                        <th>Cost per cohort (INR)</th>
+                        <th>Total WTP benefit per cohort (overall, INR)</th>
+                        <th>WTP benefit from response capacity (INR)</th>
+                        <th>Epi-based outbreak benefit per cohort (INR)</th>
+                        <th>BCR (DCE WTP only)</th>
+                        <th>NPV (DCE WTP only, INR)</th>
+                        <th>BCR (DCE WTP + epi)</th>
+                        <th>NPV (DCE WTP + epi, INR)</th>
+                        <th>WTP benefit per cohort (supportive class, INR)</th>
+                        <th>BCR (supportive class, WTP only)</th>
+                        <th>Effective WTP benefit per cohort (overall, INR)</th>
+                        <th>Effective combined benefit per cohort (overall, INR)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sensitivity-table-body">
+                    <!-- Filled dynamically:
+                         - Current configuration
+                         - One row per saved scenario using stored configuration parameters -->
+                    </tbody>
+                </table>
             </div>
+
+            <p class="hint">
+                The “Model” column shows which preference model underpins the willingness-to-pay values in each row
+                for example “MXL overall” or “LC supportive class”. Endorsement-adjusted effective benefits multiply
+                the benefit measure by the endorsement rate for that scenario and are intended for sensitivity analysis
+                rather than for primary cost–benefit results.
+            </p>
         </div>
     </section>
 

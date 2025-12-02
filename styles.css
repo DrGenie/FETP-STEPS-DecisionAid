@@ -58,6 +58,18 @@ body {
     line-height: 1.5;
     background-color: var(--color-bg);
     color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Basic links */
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 /* ===========================
@@ -162,6 +174,12 @@ body {
     border-color: var(--color-border);
 }
 
+.badge-soft {
+    background-color: #F9FAFB;
+    color: var(--color-text-muted);
+    border-color: rgba(148, 163, 184, 0.4);
+}
+
 /* ===========================
    Buttons
    =========================== */
@@ -188,7 +206,7 @@ button {
     white-space: nowrap;
     background: none;
     color: inherit;
-    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .btn-primary {
@@ -268,6 +286,38 @@ button {
     text-decoration: underline;
 }
 
+.btn-icon {
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    padding: 6px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-icon:hover {
+    background-color: #F3F4F6;
+    border-color: var(--color-border-strong);
+    transform: translateY(-1px);
+}
+
+button:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-ghost:disabled,
+.btn-primary-small:disabled,
+.btn-ghost-small:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 /* ===========================
    App shell and tabs
    =========================== */
@@ -276,6 +326,25 @@ button {
     max-width: 1240px;
     margin: 16px auto 32px auto;
     padding: 0 16px;
+}
+
+.app-main-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1.4fr);
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.app-main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (max-width: 1100px) {
+    .app-main-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 
 .tab-bar {
@@ -350,6 +419,25 @@ button {
     justify-content: space-between;
     gap: 8px;
     margin-bottom: 8px;
+}
+
+.card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.card-title-row h2,
+.card-title-row h3 {
+    margin-bottom: 0;
+}
+
+.card-subtitle {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: -2px;
 }
 
 .grid-two {
@@ -480,6 +568,11 @@ ol.plain-list {
     border: 1px dashed var(--color-border);
 }
 
+.text-muted {
+    color: var(--color-text-muted);
+    font-size: 13px;
+}
+
 /* ===========================
    Forms, inputs and sliders
    =========================== */
@@ -531,6 +624,11 @@ select:focus {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
     background-color: #FFFFFF;
+}
+
+input[readonly],
+textarea[readonly] {
+    background-color: #F3F4F6;
 }
 
 textarea {
@@ -1281,6 +1379,25 @@ canvas {
     text-align: right;
 }
 
+.flex-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.flex-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 /* ===========================
    Technical preview
    =========================== */
@@ -1345,6 +1462,96 @@ textarea:focus-visible {
 }
 
 /* ===========================
+   KPI tiles and export toolbar
+   =========================== */
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.kpi-card {
+    background-color: #F9FAFB;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    padding: 8px 10px;
+}
+
+.kpi-label {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-bottom: 2px;
+}
+
+.kpi-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.kpi-small-note {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+}
+
+.export-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+/* ===========================
+   Tags / label pills
+   =========================== */
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 11px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background-color: #F9FAFB;
+    color: var(--color-text-muted);
+}
+
+.tag-strong {
+    border-color: var(--color-primary-soft);
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+/* ===========================
+   Custom scrollbars (desktop)
+   =========================== */
+
+@media (min-width: 768px) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: #CBD5F5 transparent;
+    }
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background-color: #CBD5F5;
+        border-radius: 999px;
+    }
+}
+
+/* ===========================
    Print styles for exports
    =========================== */
 
@@ -1375,7 +1582,8 @@ textarea:focus-visible {
     }
 
     .button-row,
-    .info-icon {
+    .info-icon,
+    .export-toolbar {
         display: none !important;
     }
 }

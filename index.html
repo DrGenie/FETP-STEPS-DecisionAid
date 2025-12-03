@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -807,7 +808,7 @@
         <div class="card"
              data-tour-step="sensitivity"
              data-tour-title="Sensitivity and DCE benefit definitions"
-             data-tour-content="This tab summarises how programme costs and different benefit definitions compare across the current configuration and any saved scenarios, using the discrete choice experiment, cost templates and epidemiological multipliers.">
+             data-tour-content="This tab summarises how programme costs and different benefit definitions compare across the current configuration and any saved scenarios, using the discrete choice experiment, cost templates and epidemiological multipliers. It also reports willingness-to-pay benefits, outbreak-response contributions and benefit–cost metrics including benefit–cost ratios and net present values.">
             <div class="card-header-with-info">
                 <h2>Sensitivity and DCE benefit summary</h2>
                 <button type="button"
@@ -817,6 +818,14 @@
                     i
                 </button>
             </div>
+
+            <p class="hint">
+                This tab brings together preference-based benefits from the discrete choice experiment and the cost and
+                epidemiological modules. It shows the total willingness-to-pay benefit associated with each configuration,
+                the share that is specifically linked to faster outbreak response, any additional outbreak-related benefits
+                from the epidemiological module when activated, and summary cost–benefit indicators such as the
+                benefit–cost ratio and net present value across different stakeholder groups.
+            </p>
 
             <p>
                 This view turns the discrete choice experiment estimates, cost templates and epidemiological multipliers
@@ -836,6 +845,149 @@
                 willingness to pay is constructed from the discrete choice experiment and how outbreak-related
                 epidemiological benefits are linked to response time.
                 <a href="technical-appendix.html" target="_blank">See the technical appendix for full formulas and worked examples.</a>
+            </p>
+
+            <div class="card card-secondary sensitivity-controls-panel">
+                <h3>Benefit definition and stakeholder view</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="benefit-definition-select">
+                            Benefit definition
+                            <button type="button" class="info-icon" aria-label="Benefit definition information"
+                                    data-tooltip="Choose whether to view results based only on DCE willingness-to-pay, to add epidemiological outbreak benefits, or to focus on endorsement-adjusted willingness-to-pay for sensitivity analysis.">
+                                i
+                            </button>
+                        </label>
+                        <select id="benefit-definition-select">
+                            <option value="wtp_only">DCE WTP only</option>
+                            <option value="wtp_plus_epi">DCE WTP + epidemiological outbreak benefit</option>
+                            <option value="endorsement_adjusted">Endorsement-adjusted WTP</option>
+                        </select>
+                        <p class="hint">
+                            Use this control to switch between pure preference-based benefits, combined preference and epidemiological
+                            benefits, or a view that scales willingness-to-pay by endorsement.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Include epidemiological outbreak benefits
+                            <button type="button" class="info-icon" aria-label="Include outbreak benefits information"
+                                    data-tooltip="Turn this on to add outbreak-related benefits from the epidemiological module to DCE willingness-to-pay benefits in the combined benefit–cost indicators.">
+                                i
+                            </button>
+                        </label>
+                        <button type="button" id="sensitivity-epi-toggle" class="switch-pill on">
+                            <span class="switch-knob"></span>
+                            <span class="switch-label">Outbreak benefits included</span>
+                        </button>
+                        <p class="hint">
+                            When this switch is off, the epidemiological outbreak benefit column shows that outbreak benefits
+                            are not included and benefit–cost indicators reflect DCE willingness-to-pay only.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="benefit-class-scenario">
+                            Stakeholder and latent class view
+                            <button type="button" class="info-icon" aria-label="Stakeholder view information"
+                                    data-tooltip="Select whether results are shown for the overall sample, the supportive latent class (more favourable to FETP investment) or a more conservative or sceptical class if available.">
+                                i
+                            </button>
+                        </label>
+                        <select id="benefit-class-scenario">
+                            <option value="overall">Overall sample</option>
+                            <option value="supportive">Supportive class</option>
+                            <option value="conservative">Conservative / sceptical class</option>
+                        </select>
+                        <p class="hint">
+                            This control allows you to view the same configurations from different stakeholder perspectives,
+                            which is useful when comparing business cases for groups with more or less cautious attitudes
+                            towards FETP investment.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endorsement-override">
+                            Endorsement rate for sensitivity (%)
+                            <button type="button" class="info-icon" aria-label="Endorsement rate override information"
+                                    data-tooltip="Optional override of the model-predicted endorsement rate. When a value is entered and the endorsement-adjusted view is selected, STEPS uses this rate to scale willingness-to-pay benefits in sensitivity calculations.">
+                                i
+                            </button>
+                        </label>
+                        <input type="number" id="endorsement-override" min="0" max="100" step="1" placeholder="Leave blank to use modelled endorsement">
+                        <p class="hint">
+                            Leave this empty to rely on the endorsement rate from the preference model. Enter a value to test
+                            alternative endorsement assumptions for ministries of health, finance or partners.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button id="refresh-sensitivity-benefits" type="button" class="btn-primary">
+                        Update sensitivity summary
+                    </button>
+                    <button id="export-sensitivity-benefits-excel" type="button" class="btn-secondary">
+                        Download sensitivity table (Excel)
+                    </button>
+                    <button id="export-sensitivity-benefits-pdf" type="button" class="btn-secondary">
+                        Download sensitivity table (PDF)
+                    </button>
+                </div>
+                <p class="hint">
+                    The export buttons download the sensitivity table exactly as displayed on screen so that results can be pasted
+                    directly into concept notes, annexes or World Bank and WHO briefing materials.
+                </p>
+            </div>
+
+            <h3>Headline WTP-based benefits and cost–benefit metrics</h3>
+            <p class="hint">
+                The table below summarises programme costs, DCE willingness-to-pay benefits, outbreak-response contributions,
+                epidemiological outbreak benefits where applicable, endorsement-adjusted effective benefits and cost–benefit
+                indicators for each scenario over the chosen time horizon.
+            </p>
+
+            <div class="table-wrapper">
+                <table class="data-table" id="dce-benefits-table">
+                    <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Cost (INR, chosen horizon)</th>
+                        <th>Total WTP benefit (INR)</th>
+                        <th>WTP from outbreak response capacity (INR)</th>
+                        <th>Epi-based outbreak benefit (INR)</th>
+                        <th>Endorsement rate used (%)</th>
+                        <th>Effective WTP benefit (INR)</th>
+                        <th>BCR (DCE WTP only)</th>
+                        <th>NPV (DCE WTP only, INR)</th>
+                        <th>BCR (DCE + epi)</th>
+                        <th>NPV (DCE + epi, INR)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dce-benefits-table-body">
+                    <!-- Filled dynamically from script.js:
+                         - One row per scenario (current configuration and saved scenarios)
+                         - Using selected benefit definition, stakeholder view and endorsement assumptions -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="hint">
+                In this table, the cost column shows the relevant economic cost for each scenario over the selected time horizon.
+                Total willingness-to-pay benefits summarise how much value stakeholders place on each configuration, while the
+                outbreak-response column isolates the part of that value linked to faster detection and response. Epidemiological
+                outbreak benefits appear when the outbreak benefit switch is on and the epidemiological module is active. The
+                effective willingness-to-pay benefit scales total willingness to pay by the endorsement rate used in the
+                calculation. Benefit–cost ratios compare total benefits with total costs, while net present values show the
+                difference between benefits and costs in rupee terms. Values above one for benefit–cost ratios and positive
+                net present values indicate that estimated benefits exceed costs on the assumptions used.
+            </p>
+
+            <h3>Detailed sensitivity matrix</h3>
+            <p>
+                For users who wish to see a more granular breakdown, the detailed matrix below retains the full set of columns
+                originally defined for the sensitivity view. It can be used alongside the headline table above to cross-check
+                results and document alternative model specifications or stakeholder group assumptions.
             </p>
 
             <div class="table-wrapper">

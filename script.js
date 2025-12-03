@@ -43,13 +43,13 @@ const LC2_COEFS = {
     ascOptOut: -2.543,
     tier: {
         frontline: 0.0,
-        intermediate: 0.0,
+        intermediate: 0.087,
         advanced: 0.422
     },
     career: {
         certificate: 0.0,
-        uniqual: 0.0,
-        career_path: 0.0
+        uniqual: -0.024,
+        career_path: -0.123
     },
     mentorship: {
         low: 0.0,
@@ -58,8 +58,8 @@ const LC2_COEFS = {
     },
     delivery: {
         blended: 0.0,
-        inperson: 0.0,
-        online: 0.0
+        inperson: -0.017,
+        online: -0.700
     },
     response: {
         30: 0.0,

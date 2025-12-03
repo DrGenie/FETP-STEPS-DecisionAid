@@ -1,14 +1,16 @@
+
 {
   "meta": {
     "name": "STEPS FETP India cost configuration",
-    "version": "1.2",
+    "version": "1.3",
     "description": "Cost templates for FETP India Frontline, Intermediate and Advanced tiers, structured by component and compatible with the STEPS decision aid.",
-    "lastUpdated": "2025-12-02",
+    "lastUpdated": "2025-12-03",
     "author": "Mesfin Genie and collaborators",
-    "notes": "Version 1.2 adds enriched meta, UI, ranges, mappings and layout fields while preserving the original tier/template structure and component amounts from earlier versions.",
+    "notes": "Version 1.2 adds enriched meta, UI, ranges, mappings and layout fields while preserving the original tier/template structure and component amounts from earlier versions. Version 1.3 adds explicit scenario-level total cost fields and DCE sensitivity linkages while preserving all existing structures and component values for compatibility with earlier tools and analyses.",
     "backwardsCompatibleWith": [
       "1.0",
-      "1.1"
+      "1.1",
+      "1.2"
     ],
     "configType": "programme_cost",
     "intendedUse": "To provide structured, editable programme cost templates for use in the STEPS decision-support tool, including per-cohort and per-trainee-per-month cost calculations.",
@@ -16,13 +18,13 @@
   },
 
   "metadata": {
-    "version": "2.0",
-    "last_updated": "2025-12-02",
+    "version": "2.1",
+    "last_updated": "2025-12-03",
     "description": "Cost templates for STEPS FETP India decision aid. Values are aligned with official WHO, NIE and NCDC submissions and are intended for use in economic evaluation and decision-support tools.",
     "contacts": [
       "mesfin.genie@newcastle.edu.au"
     ],
-    "notes": "This configuration is designed to be editable by technical users (e.g. WHO, World Bank, MoH teams) without modifying the core JavaScript code."
+    "notes": "This configuration is designed to be editable by technical users (e.g. WHO, World Bank, MoH teams) without modifying the core JavaScript code. Version 2.1 aligns the cost scenarios with DCE-based WTP and epidemiological benefit calculations by adding explicit scenario-level total cost fields suitable for NPV and BCR computation in the Sensitivity / DCE Benefits tab."
   },
 
   "general": {
@@ -173,19 +175,60 @@
     "financialCost": {
       "label": "Financial cost only",
       "description": "Excludes opportunity cost components when summarising costs.",
-      "includeOpportunityCost": false
+      "includeOpportunityCost": false,
+      "id": "financialCost",
+      "appliesToTiers": [
+        "frontline",
+        "intermediate",
+        "advanced"
+      ],
+      "supportsDceSensitivity": true,
+      "total_cost_inr_over_horizon": null,
+      "total_cost_per_cohort_inr": null,
+      "total_cost_per_trainee_per_month_inr": null
     },
     "economicCost": {
       "label": "Economic cost (including opportunity cost)",
       "description": "Includes all components marked as opportunity cost in addition to financial costs.",
-      "includeOpportunityCost": true
+      "includeOpportunityCost": true,
+      "id": "economicCost",
+      "appliesToTiers": [
+        "frontline",
+        "intermediate",
+        "advanced"
+      ],
+      "supportsDceSensitivity": true,
+      "total_cost_inr_over_horizon": null,
+      "total_cost_per_cohort_inr": null,
+      "total_cost_per_trainee_per_month_inr": null
     },
     "economicHighOpportunityCost": {
       "label": "Economic cost – high opportunity cost",
       "description": "Applies a 25% uplift to components tagged as opportunity cost, while including all financial costs.",
       "includeOpportunityCost": true,
-      "opportunityCostMultiplier": 1.25
+      "opportunityCostMultiplier": 1.25,
+      "id": "economicHighOpportunityCost",
+      "appliesToTiers": [
+        "frontline",
+        "intermediate",
+        "advanced"
+      ],
+      "supportsDceSensitivity": true,
+      "total_cost_inr_over_horizon": null,
+      "total_cost_per_cohort_inr": null,
+      "total_cost_per_trainee_per_month_inr": null
     }
+  },
+
+  "dce_sensitivity": {
+    "enabled": true,
+    "default_cost_scenario_key": "economicCost",
+    "supported_cost_scenario_keys": [
+      "financialCost",
+      "economicCost",
+      "economicHighOpportunityCost"
+    ],
+    "notes": "This block links cost perspectives to the Sensitivity / DCE Benefits tab. For each scenario key, script.js can compute C_s (scenario-level total cost over the planning horizon) using the selected tier, template, cohortCount, traineesPerCohort, monthsPerCohort, discountRate and endorsementRate, then store the result in scenarios[scenarioKey].total_cost_inr_over_horizon for use in NPV and BCR calculations alongside WTP and epidemiological benefits."
   },
 
   "defaults": {

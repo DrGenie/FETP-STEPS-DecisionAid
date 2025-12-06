@@ -46,15 +46,6 @@
             <span class="tour-icon">?</span>
             Quick tour
         </button>
-        <button id="btn-copilot"
-                class="btn-ghost-small"
-                type="button"
-                data-tour-step="copilot-helper"
-                data-tour-title="Use Copilot with STEPS outputs"
-                data-tour-content="Click here to open Microsoft Copilot in a new tab and copy a suggested helper prompt to your clipboard. Paste the prompt into Copilot along with a JSON or tabular export from STEPS to obtain a narrative interpretation.">
-            <span class="tour-icon">⊕</span>
-            Open in Copilot
-        </button>
         <a href="technical-appendix.html"
            target="_blank"
            class="btn-link-small"
@@ -1285,54 +1276,74 @@ STEPS assumption log will appear here after advanced settings and a configuratio
                         and shows how total WTP sits alongside epidemiological benefits in business case discussions.
                     </p>
                 </div>
+            </div>
 
-                <div class="copilot-helper-block"
-                     data-tour-step="copilot-helper-technical"
-                     data-tour-title="Copilot helper prompt"
-                     data-tour-content="Use this helper prompt together with Microsoft Copilot to generate narrative summaries of STEPS outputs for briefing notes and meetings.">
-                    <h3>Use Microsoft Copilot with STEPS outputs</h3>
-                    <p>
-                        You can use Microsoft Copilot to turn STEPS results and scenario exports into short narrative
-                        summaries for ministries of health, finance and partners. The helper prompt below is designed
-                        for this purpose. Copy it to your clipboard, open Copilot and paste the prompt, then paste the
-                        JSON or tabular export from STEPS for the scenario you wish to explain.
-                    </p>
-                    <label for="copilot-prompt-template">Copilot helper prompt</label>
-                    <textarea id="copilot-prompt-template" rows="10" readonly>
-You are assisting with interpreting outputs from the STEPS FETP Scale-up Decision Aid developed by Newcastle Business School and partners for the Government of India and the World Bank. The tool uses discrete choice experiment (DCE) estimates, cost templates (WHO, NIE, NCDC) and simple epidemiological multipliers to summarise costs, stakeholder willingness to pay, epidemiological benefits, graduates and outbreak responses for different Field Epidemiology Training Program (FETP) scale-up scenarios in India.
+            <!-- Copilot integration card -->
+            <div class="card"
+                 data-tour-step="copilot"
+                 data-tour-title="AI-assisted interpretation with Copilot"
+                 data-tour-content="Use this panel to generate an interpretation prompt for Microsoft Copilot. The tool prepares a structured prompt plus scenario JSON so that Copilot can summarise and interpret STEPS outputs for policy audiences.">
+                <h2>AI-assisted interpretation (Microsoft Copilot)</h2>
+                <p>
+                    This panel provides a “soft” integration with Microsoft Copilot. The tool prepares a structured prompt
+                    that includes a JSON export of the current configuration and any saved scenarios. The prompt is copied
+                    to your clipboard so that you can paste it directly into Copilot for narrative interpretation.
+                </p>
+                <p>
+                    When you click <strong>Copy prompt for Copilot</strong>, STEPS constructs a text block that:
+                </p>
+                <ul class="plain-list">
+                    <li>Describes STEPS as a decision aid for FETP scale-up in India.</li>
+                    <li>Embeds a JSON export with endorsement, willingness-to-pay, cost, epidemiological and benefit–cost indicators for the scenario set.</li>
+                    <li>Asks Copilot to summarise results, highlight trade-offs and suggest messages for policy briefs.</li>
+                </ul>
+                <p class="hint">
+                    The text shown below is the static part of the prompt. The JSON export is appended automatically by the script
+                    when you copy the prompt, so you do not need to paste any tables or numbers manually.
+                </p>
 
-You will receive as input a JSON object or structured table exported from STEPS that describes one or more scenarios. Each scenario includes:
-- Configuration details (programme tier, career incentive, mentorship intensity, delivery mode, expected response time, cohort size, number of cohorts).
-- Economic indicators (programme cost per cohort, total economic cost, cost per trainee per month).
-- Preference-based indicators (willingness to pay per trainee per month, total willingness to pay per cohort, total willingness to pay across all cohorts).
-- Epidemiological indicators (number of graduates, outbreak responses per year, indicative epidemiological benefit).
-- Cost-benefit indicators (benefit-cost ratios, net benefits, and any national simulation outputs).
-- Any short narrative notes entered by the user.
+                <div class="form-group form-group-wide">
+                    <label for="copilot-prompt-text">
+                        Prompt that will be sent to Copilot (static part)
+                    </label>
+                    <textarea id="copilot-prompt-text"
+                              class="copilot-prompt"
+                              rows="10"
+                              readonly>
+You are helping interpret outputs from the STEPS FETP India scale-up decision aid, developed by Newcastle Business School in partnership with the World Bank. STEPS is a web-based tool that uses discrete choice experiment (DCE) results, cost templates and simple epidemiological multipliers to assess alternative configurations of Field Epidemiology Training Programmes (FETP) in India.
 
-Your tasks are:
-1. Restate the scenario in clear language, including the main configuration choices and scale (cohorts and trainees).
-2. Summarise the key indicators (costs, willingness to pay, epidemiological benefits, benefit-cost ratios and net benefits) in simple terms suitable for a joint Ministry of Health and Ministry of Finance audience.
-3. Explain what the benefit-cost metrics imply for the business case (for example, whether benefits appear to exceed costs on the assumptions used).
-4. Highlight the main strengths, trade-offs and risks of the scenario, including any concerns about cost levels, endorsement rates, or dependence on specific assumptions.
-5. Provide three to five concise talking points that could be used in policy meetings or briefing notes.
-6. Suggest two or three plausible alternative configurations that decision makers might want to test next (for example, changes in tier, mentoring, response time, cohort size or number of cohorts), and explain why these alternatives might be informative.
+The tool has generated a structured JSON export for the current configuration and any saved scenarios. This JSON contains, for each scenario:
+- Programme design inputs (tier, career incentive, mentorship intensity, delivery mode and expected response time for events).
+- Scale parameters (cohort size, number of cohorts and cost per trainee per month).
+- Model-based endorsement probabilities.
+- DCE-based willingness-to-pay (WTP) per trainee per month, total WTP, and the share of WTP specifically associated with faster outbreak response.
+- Economic costs (programme cost, opportunity cost and total economic cost).
+- Epidemiological outputs (graduates, outbreak responses per year and monetary values per graduate and per outbreak).
+- Benefit–cost indicators including benefit–cost ratios and net benefits at cohort and national scale, for the overall sample and key latent classes where applicable.
 
-Here is the JSON or tabular export from STEPS for the current scenario (or set of scenarios). Do not invent numbers; base all interpretation strictly on the data provided below:
+Please:
+1. Summarise the main indicators for each scenario in clear language for a joint Ministry of Health and Ministry of Finance audience.
+2. Identify which scenarios appear strongest from a value-for-money and outbreak preparedness perspective, referring to endorsement, WTP, costs, epidemiological benefits and benefit–cost ratios.
+3. Highlight key trade-offs between programme tier, mentorship intensity, delivery mode, response time, costs and benefits.
+4. Suggest two or three concise messages that could be used in a policy brief or slide deck to communicate the results to senior decision-makers.
 
-<<<PASTE STEPS SCENARIO JSON OR TABLE HERE>>>
+The JSON export for the scenario set is appended after this instruction block.
                     </textarea>
-                    <div class="button-row">
-                        <button type="button" id="copy-copilot-prompt" class="btn-secondary">
-                            Copy prompt for Copilot
-                        </button>
-                    </div>
-                    <p class="hint">
-                        After clicking “Copy prompt for Copilot”, open
-                        <a href="https://copilot.microsoft.com/" target="_blank" rel="noopener">copilot.microsoft.com</a>,
-                        paste the prompt into the chat box, then paste the STEPS export for the scenario you want to interpret.
-                        You can then refine the wording of the briefing text directly in Copilot if needed.
-                    </p>
                 </div>
+
+                <div class="button-row">
+                    <button id="btn-copy-copilot-prompt" type="button" class="btn-primary">
+                        Copy prompt for Copilot
+                    </button>
+                    <button id="btn-open-copilot" type="button" class="btn-secondary">
+                        Open Copilot in new tab
+                    </button>
+                </div>
+                <p class="hint">
+                    After clicking <strong>Copy prompt for Copilot</strong>, go to the Copilot window that opens (or to
+                    <code>https://copilot.microsoft.com/</code>), click into the chat box and paste the copied text.
+                    Copilot will then interpret the STEPS outputs using the embedded JSON export.
+                </p>
             </div>
         </div>
     </section>
@@ -1378,76 +1389,6 @@ Here is the JSON or tabular export from STEPS for the current scenario (or set o
 <!-- Hidden inline template for technical appendix window (legacy, kept for completeness but main link uses separate file) -->
 <script type="text/plain" id="technical-appendix-template">
 <!-- This template is retained for backward compatibility. The main technical appendix now lives in technical-appendix.html. -->
-</script>
-
-<!-- COPILOT INTEGRATION SCRIPT -->
-<script>
-(function () {
-    function getCopilotPromptText() {
-        var textarea = document.getElementById('copilot-prompt-template');
-        return textarea ? textarea.value : '';
-    }
-
-    function copyPromptAndNotify(openCopilot) {
-        var promptText = getCopilotPromptText();
-        if (!promptText) {
-            if (window.showToast) {
-                window.showToast('Copilot prompt is not available. Please check the Technical tab.');
-            } else {
-                alert('Copilot prompt is not available. Please check the Technical tab.');
-            }
-            if (openCopilot) {
-                window.open('https://copilot.microsoft.com/', '_blank', 'noopener');
-            }
-            return;
-        }
-
-        var onSuccess = function () {
-            if (window.showToast) {
-                window.showToast('Copilot helper prompt copied. Paste it into Copilot, then paste the STEPS scenario export.');
-            }
-        };
-
-        var onError = function () {
-            if (window.showToast) {
-                window.showToast('Unable to copy Copilot prompt automatically. Please copy it manually from the Technical tab.');
-            } else {
-                alert('Unable to copy Copilot prompt automatically. Please copy it manually from the Technical tab.');
-            }
-        };
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(promptText).then(onSuccess, onError);
-        } else {
-            onError();
-        }
-
-        if (openCopilot) {
-            window.open('https://copilot.microsoft.com/', '_blank', 'noopener');
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var headerBtn = document.getElementById('btn-copilot');
-        if (headerBtn) {
-            headerBtn.addEventListener('click', function () {
-                copyPromptAndNotify(true);
-            });
-        }
-
-        var copyBtn = document.getElementById('copy-copilot-prompt');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', function () {
-                copyPromptAndNotify(false);
-            });
-        }
-    });
-
-    // Expose for debugging if needed
-    window.STEPS_Copilot = {
-        copyPromptAndNotify: copyPromptAndNotify
-    };
-})();
 </script>
 
 <!-- MAIN SCRIPT -->

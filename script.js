@@ -1,7 +1,7 @@
-
 /* ===================================================
    STEPS FETP India Decision Aiidd
    Script with interactive DCE sensitivity / benefits tab
+   + M365 Copilot soft integration
    =================================================== */
 
 /* ===========================
@@ -946,7 +946,7 @@ function computeDceCbaProfiles(cfg, costs, epi, options) {
       bcrCombined,
       combinedEffectiveBenefit,
       npvCombinedEffective,
-      bcrCombinedEffective
+      bcrEffectiveTotal: bcrCombinedEffective
     };
   }
 
@@ -990,7 +990,7 @@ function computeDceCbaProfiles(cfg, costs, epi, options) {
       npvEffective: profiles.overall.npvEffective,
       bcrEffective: profiles.overall.bcrEffective,
       npvEffectiveTotal: profiles.overall.npvCombinedEffective,
-      bcrEffectiveTotal: profiles.overall.bcrCombinedEffective
+      bcrEffectiveTotal: profiles.overall.bcrEffectiveTotal
     },
     supporters: {
       B_WTP: profiles.supportive.wtpAllCohorts,
@@ -1004,7 +1004,7 @@ function computeDceCbaProfiles(cfg, costs, epi, options) {
       npvEffective: profiles.supportive.npvEffective,
       bcrEffective: profiles.supportive.bcrEffective,
       npvEffectiveTotal: profiles.supportive.npvCombinedEffective,
-      bcrEffectiveTotal: profiles.supportive.bcrCombinedEffective
+      bcrEffectiveTotal: profiles.supportive.bcrEffectiveTotal
     },
     conservative: {
       B_WTP: profiles.conservative.wtpAllCohorts,
@@ -1020,7 +1020,7 @@ function computeDceCbaProfiles(cfg, costs, epi, options) {
       npvEffectiveTotal:
         profiles.conservative.npvCombinedEffective,
       bcrEffectiveTotal:
-        profiles.conservative.bcrCombinedEffective
+        profiles.conservative.bcrEffectiveTotal
     }
   };
 
@@ -2681,6 +2681,174 @@ function exportSensitivityToPdf() {
 }
 
 /* ===========================
+   M365 Copilot soft integration
+   =========================== */
+
+/*
+  Build a compact JSON export of the current scenario for Copilot.
+*/
+function buildCopilotPayload(results) {
+  if (!results) return null;
+  const {
+    cfg,
+    util,
+    costs,
+    epi,
+    totalCostAllCohorts,
+    totalBenefitAllCohorts,
+    netBenefitAllCohorts,
+    bcr,
+    dceCba
+  } = results;
+
+  let costTemplate = null;
+  try {
+    const tpl = getCurrentCostTemplate(cfg.tier);
+    if (tpl) {
+      costTemplate = {
+        id: tpl.id || null,
+        label: tpl.label || "",
+        oppRate: typeof tpl.oppRate === "number" ? tpl.oppRate : null
+      };
+    }
+  } catch (e) {
+    costTemplate = null;
+  }
+
+  const scenarioSummary =
+    dceCba && dceCba.scenarioSummary ? dceCba.scenarioSummary : null;
+
+  return {
+    toolName: "STEPS FETP India Decision Aid Tool",
+    timestamp: new Date().toISOString(),
+    currency: state.currency,
+    preferenceModel: state.model,
+    configuration: {
+      tier: cfg.tier,
+      career: cfg.career,
+      mentorship: cfg.mentorship,
+      delivery: cfg.delivery,
+      responseTimeDays: cfg.response,
+      traineesPerCohort: cfg.traineesPerCohort,
+      numberOfCohorts: cfg.numberOfCohorts,
+      costPerTraineePerMonth_INR: cfg.costPerTraineePerMonth,
+      programmeDurationMonths: getProgrammeDurationMonths(cfg.tier),
+      costTemplate
+    },
+    notes: {
+      scenarioName: cfg.scenarioName || null,
+      scenarioNotes: cfg.scenarioNotes || null
+    },
+    endorsementAndWtp: {
+      endorseProbability: util.endorseProb,
+      optOutProbability: util.optOutProb,
+      wtpPerTraineePerMonth_INR: util.wtpConfig
+    },
+    costs: {
+      programmeCostPerCohort_INR: costs.programmeCostPerCohort,
+      opportunityCostPerCohort_INR: costs.opportunityCostPerCohort,
+      totalEconomicCostPerCohort_INR: costs.totalEconomicCostPerCohort,
+      totalCostAllCohorts_INR: totalCostAllCohorts
+    },
+    epidemiology: {
+      planningHorizonYears: state.epiSettings.general.planningHorizonYears,
+      graduatesAllCohorts: epi.graduatesAllCohorts,
+      outbreaksPerYearAllCohorts: epi.outbreaksPerYearAllCohorts,
+      benefitGraduatesAllCohorts_INR: epi.benefitGraduatesAllCohorts,
+      benefitOutbreaksAllCohorts_INR: epi.benefitOutbreaksAllCohorts,
+      totalBenefitAllCohorts_INR: totalBenefitAllCohorts
+    },
+    costBenefitSummary: {
+      netBenefitAllCohorts_INR: netBenefitAllCohorts,
+      benefitCostRatio: bcr,
+      dceScenarioSummary: scenarioSummary
+    }
+  };
+}
+
+/*
+  Build the Copilot prompt using the JSON export.
+  (Prompt text following your earlier specification and keeping it informative.)
+*/
+function buildCopilotPrompt(results) {
+  const payload = buildCopilotPayload(results);
+  if (!payload) return "";
+
+  const json = JSON.stringify(payload, null, 2);
+
+  const promptText =
+    "You are helping interpret outputs from the STEPS FETP India Decision Aid Tool developed at Newcastle Business School in collaboration with national partners. " +
+    "The tool uses discrete choice experiment (DCE) estimates of training preferences together with costing and epidemiological modules to appraise alternative Field Epidemiology Training Program (FETP) scale-up scenarios in India.\n\n" +
+    "Below is the JSON export for one scenario from the tool. It summarises the configuration (programme tier, career incentives, mentorship, delivery mode, response time), cost assumptions (programme and opportunity costs), DCE-based willingness-to-pay (WTP) estimates, predicted endorsement, epidemiological outputs (graduates and outbreak responses) and benefit–cost indicators for national implementation.\n\n" +
+    "JSON scenario export:\n" +
+    "```json\n" +
+    json +
+    "\n```\n\n" +
+    "Using this information, please do the following:\n" +
+    "1. Provide a concise plain-language summary of this scenario suitable for a senior policymaker or World Bank task team, highlighting endorsement, total costs, total benefits, net benefit and the benefit–cost ratio.\n" +
+    "2. Explain what the DCE-based WTP metrics imply about stakeholder support for this configuration and how this interacts with the epidemiological benefits.\n" +
+    "3. Identify three to five key messages that a decision maker should take away when judging whether this scenario is attractive for scale-up.\n" +
+    "4. Suggest one or two potential design adjustments (for example to tier, mentorship, delivery mode or cost) that could improve either value for money or endorsement, based on the pattern of attributes in the configuration.\n";
+
+  return promptText;
+}
+
+/*
+  Copy the prompt to the clipboard and open Copilot in a new tab.
+*/
+function setupCopilotIntegration() {
+  const btn = document.getElementById("open-copilot");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    if (!state.lastResults) {
+      showToast("Apply a configuration before sending to Copilot.", "warning");
+      return;
+    }
+
+    const promptText = buildCopilotPrompt(state.lastResults);
+    if (!promptText) {
+      showToast("Unable to build Copilot prompt for this configuration.", "error");
+      return;
+    }
+
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(promptText);
+        copied = true;
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = promptText;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        copied = true;
+      }
+    } catch (e) {
+      copied = false;
+    }
+
+    if (copied) {
+      showToast(
+        "Copilot prompt copied. A new Copilot tab will open; paste the prompt there.",
+        "success"
+      );
+    } else {
+      showToast(
+        "Opening Copilot. If the prompt was not copied automatically, please return to this window and copy it from the scenario export section.",
+        "warning"
+      );
+    }
+
+    window.open("https://copilot.microsoft.com/", "_blank");
+  });
+}
+
+/* ===========================
    Advanced settings
    =========================== */
 
@@ -3172,6 +3340,7 @@ function init() {
   setupScenarioExports();
   setupSensitivityControls();
   setupTour();
+  setupCopilotIntegration();
 
   const applyBtn = document.getElementById("update-results");
   if (applyBtn) {

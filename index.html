@@ -46,6 +46,15 @@
             <span class="tour-icon">?</span>
             Quick tour
         </button>
+        <button id="btn-copilot"
+                class="btn-ghost-small"
+                type="button"
+                data-tour-step="copilot-helper"
+                data-tour-title="Use Copilot with STEPS outputs"
+                data-tour-content="Click here to open Microsoft Copilot in a new tab and copy a suggested helper prompt to your clipboard. Paste the prompt into Copilot along with a JSON or tabular export from STEPS to obtain a narrative interpretation.">
+            <span class="tour-icon">⊕</span>
+            Open in Copilot
+        </button>
         <a href="technical-appendix.html"
            target="_blank"
            class="btn-link-small"
@@ -1276,6 +1285,54 @@ STEPS assumption log will appear here after advanced settings and a configuratio
                         and shows how total WTP sits alongside epidemiological benefits in business case discussions.
                     </p>
                 </div>
+
+                <div class="copilot-helper-block"
+                     data-tour-step="copilot-helper-technical"
+                     data-tour-title="Copilot helper prompt"
+                     data-tour-content="Use this helper prompt together with Microsoft Copilot to generate narrative summaries of STEPS outputs for briefing notes and meetings.">
+                    <h3>Use Microsoft Copilot with STEPS outputs</h3>
+                    <p>
+                        You can use Microsoft Copilot to turn STEPS results and scenario exports into short narrative
+                        summaries for ministries of health, finance and partners. The helper prompt below is designed
+                        for this purpose. Copy it to your clipboard, open Copilot and paste the prompt, then paste the
+                        JSON or tabular export from STEPS for the scenario you wish to explain.
+                    </p>
+                    <label for="copilot-prompt-template">Copilot helper prompt</label>
+                    <textarea id="copilot-prompt-template" rows="10" readonly>
+You are assisting with interpreting outputs from the STEPS FETP Scale-up Decision Aid developed by Newcastle Business School and partners for the Government of India and the World Bank. The tool uses discrete choice experiment (DCE) estimates, cost templates (WHO, NIE, NCDC) and simple epidemiological multipliers to summarise costs, stakeholder willingness to pay, epidemiological benefits, graduates and outbreak responses for different Field Epidemiology Training Program (FETP) scale-up scenarios in India.
+
+You will receive as input a JSON object or structured table exported from STEPS that describes one or more scenarios. Each scenario includes:
+- Configuration details (programme tier, career incentive, mentorship intensity, delivery mode, expected response time, cohort size, number of cohorts).
+- Economic indicators (programme cost per cohort, total economic cost, cost per trainee per month).
+- Preference-based indicators (willingness to pay per trainee per month, total willingness to pay per cohort, total willingness to pay across all cohorts).
+- Epidemiological indicators (number of graduates, outbreak responses per year, indicative epidemiological benefit).
+- Cost-benefit indicators (benefit-cost ratios, net benefits, and any national simulation outputs).
+- Any short narrative notes entered by the user.
+
+Your tasks are:
+1. Restate the scenario in clear language, including the main configuration choices and scale (cohorts and trainees).
+2. Summarise the key indicators (costs, willingness to pay, epidemiological benefits, benefit-cost ratios and net benefits) in simple terms suitable for a joint Ministry of Health and Ministry of Finance audience.
+3. Explain what the benefit-cost metrics imply for the business case (for example, whether benefits appear to exceed costs on the assumptions used).
+4. Highlight the main strengths, trade-offs and risks of the scenario, including any concerns about cost levels, endorsement rates, or dependence on specific assumptions.
+5. Provide three to five concise talking points that could be used in policy meetings or briefing notes.
+6. Suggest two or three plausible alternative configurations that decision makers might want to test next (for example, changes in tier, mentoring, response time, cohort size or number of cohorts), and explain why these alternatives might be informative.
+
+Here is the JSON or tabular export from STEPS for the current scenario (or set of scenarios). Do not invent numbers; base all interpretation strictly on the data provided below:
+
+<<<PASTE STEPS SCENARIO JSON OR TABLE HERE>>>
+                    </textarea>
+                    <div class="button-row">
+                        <button type="button" id="copy-copilot-prompt" class="btn-secondary">
+                            Copy prompt for Copilot
+                        </button>
+                    </div>
+                    <p class="hint">
+                        After clicking “Copy prompt for Copilot”, open
+                        <a href="https://copilot.microsoft.com/" target="_blank" rel="noopener">copilot.microsoft.com</a>,
+                        paste the prompt into the chat box, then paste the STEPS export for the scenario you want to interpret.
+                        You can then refine the wording of the briefing text directly in Copilot if needed.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
@@ -1321,6 +1378,76 @@ STEPS assumption log will appear here after advanced settings and a configuratio
 <!-- Hidden inline template for technical appendix window (legacy, kept for completeness but main link uses separate file) -->
 <script type="text/plain" id="technical-appendix-template">
 <!-- This template is retained for backward compatibility. The main technical appendix now lives in technical-appendix.html. -->
+</script>
+
+<!-- COPILOT INTEGRATION SCRIPT -->
+<script>
+(function () {
+    function getCopilotPromptText() {
+        var textarea = document.getElementById('copilot-prompt-template');
+        return textarea ? textarea.value : '';
+    }
+
+    function copyPromptAndNotify(openCopilot) {
+        var promptText = getCopilotPromptText();
+        if (!promptText) {
+            if (window.showToast) {
+                window.showToast('Copilot prompt is not available. Please check the Technical tab.');
+            } else {
+                alert('Copilot prompt is not available. Please check the Technical tab.');
+            }
+            if (openCopilot) {
+                window.open('https://copilot.microsoft.com/', '_blank', 'noopener');
+            }
+            return;
+        }
+
+        var onSuccess = function () {
+            if (window.showToast) {
+                window.showToast('Copilot helper prompt copied. Paste it into Copilot, then paste the STEPS scenario export.');
+            }
+        };
+
+        var onError = function () {
+            if (window.showToast) {
+                window.showToast('Unable to copy Copilot prompt automatically. Please copy it manually from the Technical tab.');
+            } else {
+                alert('Unable to copy Copilot prompt automatically. Please copy it manually from the Technical tab.');
+            }
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(promptText).then(onSuccess, onError);
+        } else {
+            onError();
+        }
+
+        if (openCopilot) {
+            window.open('https://copilot.microsoft.com/', '_blank', 'noopener');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var headerBtn = document.getElementById('btn-copilot');
+        if (headerBtn) {
+            headerBtn.addEventListener('click', function () {
+                copyPromptAndNotify(true);
+            });
+        }
+
+        var copyBtn = document.getElementById('copy-copilot-prompt');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function () {
+                copyPromptAndNotify(false);
+            });
+        }
+    });
+
+    // Expose for debugging if needed
+    window.STEPS_Copilot = {
+        copyPromptAndNotify: copyPromptAndNotify
+    };
+})();
 </script>
 
 <!-- MAIN SCRIPT -->

@@ -62,7 +62,7 @@
     <nav class="tab-bar"
          data-tour-step="tabs"
          data-tour-title="Navigation tabs"
-         data-tour-content="Use these tabs to move between configuration, results, costing, national simulation, DCE benefit sensitivity, saved scenarios, Copilot integration, about and advanced methods.">
+         data-tour-content="Use these tabs to move between configuration, results, costing, national simulation, DCE benefit sensitivity, Copilot support, saved scenarios, about and advanced methods.">
         <button class="tab-link active" data-tab="intro" type="button">Introduction</button>
         <button class="tab-link" data-tab="attributes" type="button">Attributes and levels</button>
         <button class="tab-link" data-tab="config" type="button">Configuration</button>
@@ -70,8 +70,8 @@
         <button class="tab-link" data-tab="costing" type="button">Costing details</button>
         <button class="tab-link" data-tab="natsim" type="button">National simulation</button>
         <button class="tab-link" data-tab="sensitivity" type="button">Sensitivity / DCE benefits</button>
+        <button class="tab-link" data-tab="copilot" type="button">Copilot support</button>
         <button class="tab-link" data-tab="scenarios" type="button">Saved scenarios</button>
-        <button class="tab-link" data-tab="copilot" type="button">Copilot / AI briefing</button>
         <button class="tab-link" data-tab="about" type="button">About STEPS</button>
         <button class="tab-link" data-tab="technical" type="button">Advanced and methods</button>
     </nav>
@@ -94,7 +94,7 @@
                     <li>Simple epidemiological multipliers that translate training scale-up and outbreak response times into health benefits.</li>
                 </ul>
                 <p>
-                    Users can set a programme configuration, see endorsement rates, willingness to pay, costs and benefit–cost ratios,
+                    Users can set a programme configuration, see endorsement rates, willingness to pay, costs and benefit cost ratios,
                     and compare saved scenarios side by side for business case discussions.
                 </p>
                 <p>
@@ -110,7 +110,6 @@
                         mentorship intensity, response time, delivery mode, number of cohorts, cohort size and cost per trainee per month.
                     </li>
                     <li>Keep the cost slider within the range used in the experiment (75,000 to 400,000 rupees per trainee per month).</li>
-                    <li>Select the preference model: average mixed logit or the supportive latent class group.</li>
                     <li>Click <strong>Apply configuration</strong> to update all calculations, then use
                         <strong>View results summary</strong> to open a scenario summary with headline recommendations.
                     </li>
@@ -119,8 +118,9 @@
                     <li>For workshops or sensitivity checks, use the <strong>National simulation</strong> and
                         <strong>Sensitivity / DCE benefits</strong> tabs to explore how results change with cohorts,
                         endorsement and different benefit definitions, and the <strong>Advanced and methods</strong> tab to adjust
-                        multipliers and open the full technical appendix.
-                    </li>
+                        multipliers and open the full technical appendix.</li>
+                    <li>Once you have a scenario that looks promising, use the <strong>Copilot support</strong> tab to copy a
+                        prepared interpretation package into Microsoft Copilot and generate a structured policy brief.</li>
                 </ol>
                 <p class="note">
                     STEPS is designed for laptops, desktops, tablets and mobiles.
@@ -267,13 +267,14 @@
                         </div>
                     </div>
                     <div class="attr-table-row">
-                        <div class="attr-cell-title">Preference models</div>
+                        <div class="attr-cell-title">Preference model</div>
                         <div class="attr-cell-levels">
-                            Mixed logit model and a supportive latent class group from the two-class latent class model.
+                            Mixed logit model estimated on the full discrete choice experiment sample.
                         </div>
                         <div class="attr-cell-expl">
-                            Users can switch between the average mixed logit model and the supportive latent class group.
-                            Endorsement and willingness-to-pay values change accordingly, which is useful for sensitivity analysis.
+                            All endorsement and willingness-to-pay results in STEPS are based on the mixed logit model.
+                            Latent class results are not displayed. This keeps the interface focused on a single central
+                            preference specification while still allowing sensitivity analysis on costs and benefits.
                         </div>
                     </div>
                 </div>
@@ -396,23 +397,6 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Preference model</label>
-                        <div class="pill-toggle-group">
-                            <button type="button" class="pill-toggle active" data-model="mxl">
-                                Average mixed logit
-                            </button>
-                            <button type="button" class="pill-toggle" data-model="lc2">
-                                Supportive group (latent class)
-                            </button>
-                        </div>
-                        <p class="hint">
-                            The supportive group uses the Class 2 parameters from the latent class model. Class 1 represents
-                            training resisters who are largely cost insensitive, with imprecisely estimated willingness to pay.
-                            It is not recommended for policy targeting.
-                        </p>
-                    </div>
-
-                    <div class="form-group">
                         <label>Currency display</label>
                         <div class="pill-toggle-group">
                             <button type="button" class="pill-toggle active" data-currency="INR">
@@ -486,8 +470,8 @@
                 <hr class="divider">
                 <div class="config-endorsement-row">
                     <div class="config-endorsement-label">
-                        <span class="metric-label">Endorsement (current model)</span>
-                        <button type="button" class="info-icon" data-tooltip="Predicted share of stakeholders who would choose this FETP configuration rather than the opt-out option, based on the selected preference model." aria-label="Endorsement information">i</button>
+                        <span class="metric-label">Endorsement (mixed logit model)</span>
+                        <button type="button" class="info-icon" data-tooltip="Predicted share of stakeholders who would choose this FETP configuration rather than the opt-out option, based on the mixed logit preference model." aria-label="Endorsement information">i</button>
                     </div>
                     <span class="metric-value config-endorsement-value" id="config-endorsement-value">Apply configuration</span>
                 </div>
@@ -521,7 +505,7 @@
                     <button type="button" class="info-icon" data-tooltip="Shows the predicted share of stakeholders who would endorse the FETP configuration and the share who would choose not to invest, based on the discrete choice experiment." aria-label="Endorsement and opt-out information">i</button>
                 </div>
                 <p class="hint">
-                    These percentages are obtained by plugging the chosen configuration into the mixed logit or latent class
+                    These percentages are obtained by plugging the chosen configuration into the mixed logit
                     model and comparing the utility of any FETP option with the utility of opting out. They summarise how
                     attractive the configuration is to stakeholders in the preference study.
                 </p>
@@ -585,7 +569,7 @@
                         <span class="metric-label">Total economic cost per cohort</span>
                         <span class="metric-value" id="total-cost">-</span>
                         <p class="metric-caption">
-                            Programme cost plus opportunity cost where applicable. This is the main cost figure used in benefit–cost ratios.
+                            Programme cost plus opportunity cost where applicable. This is the main cost figure used in benefit cost ratios.
                         </p>
                     </div>
                 </div>
@@ -597,7 +581,7 @@
                     </p>
                 </div>
                 <div class="metric-single">
-                    <span class="metric-label">Benefit–cost ratio (per cohort)</span>
+                    <span class="metric-label">Benefit cost ratio (per cohort)</span>
                     <span class="metric-value" id="bcr">-</span>
                     <p class="metric-caption">
                         Total indicative epidemiological benefit per cohort divided by total economic cost per cohort. Values above one suggest that epidemiological benefits exceed costs on the assumptions used.
@@ -710,277 +694,405 @@
                         </tbody>
                     </table>
                 </div>
-                <p id="cost-template-description" class="template-description"></p>
             </div>
         </div>
     </section>
 
     <!-- NATIONAL SIMULATION TAB -->
     <section id="tab-natsim" class="tab-panel">
-        <div class="grid-two-stretch"
+        <div class="card"
              data-tour-step="natsim"
              data-tour-title="National simulation"
-             data-tour-content="This tab shows how costs and benefits look once the configuration is scaled to the national number of cohorts, and compares saved scenarios side by side.">
-            <div class="card">
-                <div class="card-header-with-info">
-                    <h2>National summary for the current configuration</h2>
-                    <button type="button" class="info-icon" data-tooltip="Summarises total economic cost, benefits, net benefits and the benefit–cost ratio once the configuration is scaled to the specified number of cohorts." aria-label="National summary information">i</button>
-                </div>
-                <p class="hint">
-                    These figures combine the configuration, the number of cohorts and the epidemiological multipliers.
-                    They represent a high level summary for national scale-up under the current assumptions.
-                </p>
-                <div class="metric-pair metric-pair-tight">
-                    <div class="metric-block">
-                        <span class="metric-label">Total economic cost (all cohorts)</span>
-                        <span class="metric-value" id="nat-total-cost">-</span>
-                        <p class="metric-caption">
-                            Total programme cost plus opportunity cost across all cohorts, using the chosen cost template and toggle.
-                        </p>
-                    </div>
-                    <div class="metric-block">
-                        <span class="metric-label">Total epidemiological benefit (all cohorts)</span>
-                        <span class="metric-value" id="nat-total-benefit">-</span>
-                        <p class="metric-caption">
-                            Monetary value of graduates and outbreak responses across all cohorts, using the epidemiological settings.
-                        </p>
-                    </div>
-                </div>
-                <div class="metric-pair metric-pair-tight">
-                    <div class="metric-block">
-                        <span class="metric-label">Net epidemiological benefit (all cohorts)</span>
-                        <span class="metric-value" id="nat-net-benefit">-</span>
-                        <p class="metric-caption">
-                            Total epidemiological benefit minus total economic cost. Positive values indicate benefits exceed costs.
-                        </p>
-                    </div>
-                    <div class="metric-block">
-                        <span class="metric-label">Benefit–cost ratio (national)</span>
-                        <span class="metric-value" id="nat-bcr">-</span>
-                        <p class="metric-caption">
-                            Ratio of total epidemiological benefit to total economic cost. Values above one indicate value for money on the assumptions used.
-                        </p>
-                    </div>
-                </div>
-                <div class="metric-single">
-                    <span class="metric-label">Total WTP (all cohorts, overall sample)</span>
-                    <span class="metric-value" id="nat-total-wtp">-</span>
-                    <p class="metric-caption">
-                        Aggregate willingness-to-pay from the mixed logit model across all cohorts, treating preference-based benefits as a separate decision metric.
-                    </p>
-                </div>
-                <div class="metric-pair metric-pair-tight">
-                    <div class="metric-block">
-                        <span class="metric-label">FETP graduates (all cohorts)</span>
-                        <span class="metric-value" id="nat-graduates">-</span>
-                    </div>
-                    <div class="metric-block">
-                        <span class="metric-label">Outbreak responses per year (all cohorts)</span>
-                        <span class="metric-value" id="nat-outbreaks">-</span>
-                    </div>
-                </div>
-                <p id="natsim-summary-text" class="note">
-                    Apply a configuration to see a narrative summary of national costs, benefits and benefit–cost ratio.
-                </p>
+             data-tour-content="Here you can see how the configuration scales up nationally: total cost, total benefit, net benefit, graduates and outbreak responses.">
+            <div class="card-header-with-info">
+                <h2>National simulation and sensitivity</h2>
+                <button type="button" class="info-icon" data-tooltip="Scales the current configuration to the national level using the number of cohorts. Useful for high level business case discussions." aria-label="National simulation information">i</button>
             </div>
-
-            <div class="card card-secondary">
-                <div class="card-header-with-info">
-                    <h2>Compare scenarios at national scale</h2>
-                    <button type="button" class="info-icon" data-tooltip="Charts comparing national costs, benefits, graduates, outbreak responses and benefit–cost ratios across the current configuration and saved scenarios." aria-label="National comparison information">i</button>
+            <p>
+                This view scales the current configuration to the national level using the number of cohorts you
+                have selected. It is intended for business case discussions and high level sensitivity checks.
+                To see how results change, adjust cost, cohort size, number of cohorts or the epidemiological
+                multipliers in the Advanced and methods tab and explore the DCE benefit definitions in the
+                Sensitivity / DCE benefits tab.
+            </p>
+            <div class="grid-two">
+                <div class="natsim-column">
+                    <h3>National economic picture</h3>
+                    <div class="metric-pair metric-pair-tight">
+                        <div class="metric-block">
+                            <span class="metric-label">Total economic cost (all cohorts)</span>
+                            <span class="metric-value" id="nat-total-cost">-</span>
+                        </div>
+                        <div class="metric-block">
+                            <span class="metric-label">Total indicative epidemiological benefit (all cohorts)</span>
+                            <span class="metric-value" id="nat-total-benefit">-</span>
+                        </div>
+                    </div>
+                    <div class="metric-pair metric-pair-tight">
+                        <div class="metric-block">
+                            <span class="metric-label">National net benefit (epidemiological)</span>
+                            <span class="metric-value" id="nat-net-benefit">-</span>
+                        </div>
+                        <div class="metric-block">
+                            <span class="metric-label">National benefit cost ratio</span>
+                            <span class="metric-value" id="nat-bcr">-</span>
+                        </div>
+                    </div>
+                    <div class="metric-single">
+                        <span class="metric-label">Total WTP (all cohorts)</span>
+                        <span class="metric-value" id="nat-total-wtp">-</span>
+                        <p class="metric-caption">
+                            Aggregated willingness to pay across all trainees and cohorts, reflecting stakeholder valuation of the chosen configuration alongside epidemiological benefits.
+                        </p>
+                    </div>
+                    <p class="hint">
+                        These values multiply the per cohort costs and benefits by the number of cohorts. The benefit cost ratio
+                        stays the same, but the absolute costs, epidemiological benefits and total WTP grow with scale.
+                    </p>
+                    <div class="chart-block">
+                        <canvas id="chart-nat-cost-benefit" aria-label="National cost versus benefit chart"></canvas>
+                    </div>
                 </div>
-                <p class="hint">
-                    These charts treat the current configuration and any saved scenarios as alternative national investment
-                    options. Use them in workshops and business cases to show trade offs between cost, epidemiological impact
-                    and value for money.
+                <div class="natsim-column">
+                    <h3>National epidemiological impact</h3>
+                    <div class="metric-pair metric-pair-tight">
+                        <div class="metric-block">
+                            <span class="metric-label">Total FETP graduates</span>
+                            <span class="metric-value" id="nat-graduates">-</span>
+                        </div>
+                        <div class="metric-block">
+                            <span class="metric-label">Outbreak responses supported per year</span>
+                            <span class="metric-value" id="nat-outbreaks">-</span>
+                        </div>
+                    </div>
+                    <p class="hint">
+                        Graduates and outbreak responses here are already national figures, combining endorsement,
+                        cohort size, number of cohorts and the epidemiological multipliers. To explore sensitivity,
+                        try increasing cohorts, testing different programme tiers or changing multipliers in
+                        Advanced and methods.
+                    </p>
+                    <div class="chart-block">
+                        <canvas id="chart-nat-epi" aria-label="National epidemiological chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="natsim-summary">
+                <h3>Text summary for business cases</h3>
+                <p id="natsim-summary-text">
+                    Once a configuration is applied, this section will summarise national graduates, total economic cost,
+                    total indicative epidemiological benefit, net benefit, total WTP and annual outbreak responses in plain language
+                    that can be dropped directly into concept notes or project documents.
                 </p>
-                <div class="chart-block">
-                    <h3>Total cost and benefit</h3>
-                    <canvas id="chart-nat-cost-benefit" aria-label="National cost and benefit chart"></canvas>
-                </div>
-                <div class="chart-block">
-                    <h3>Graduates and outbreak responses</h3>
-                    <canvas id="chart-nat-epi" aria-label="National epidemiological outputs chart"></canvas>
-                </div>
-                <div class="chart-block">
-                    <h3>Benefit–cost ratio by scenario</h3>
-                    <canvas id="chart-nat-bcr" aria-label="National BCR chart"></canvas>
-                </div>
             </div>
         </div>
     </section>
 
     <!-- SENSITIVITY / DCE BENEFITS TAB -->
     <section id="tab-sensitivity" class="tab-panel">
-        <div class="grid-two-stretch"
+        <div class="card"
              data-tour-step="sensitivity"
-             data-tour-title="DCE benefit sensitivity"
-             data-tour-content="Use this tab to compare DCE-based willingness-to-pay, endorsement and benefit–cost ratios across scenarios, with optional outbreak benefits and endorsement adjustments.">
-            <div class="card">
-                <div class="card-header-with-info">
-                    <h2>DCE-based benefit comparison</h2>
-                    <button type="button" class="info-icon" data-tooltip="Headline table comparing DCE-based benefits, endorsement and benefit–cost ratios across scenarios, for the overall sample or latent classes." aria-label="DCE benefit comparison information">i</button>
-                </div>
-                <p class="hint">
-                    This view summarises the discrete choice experiment outputs in a way that is directly usable for policy
-                    briefings. It reports total willingness-to-pay, outbreak benefits where included, endorsement and
-                    benefit–cost ratios for the current configuration and saved scenarios.
-                </p>
+             data-tour-title="Sensitivity and DCE benefit definitions"
+             data-tour-content="This tab summarises how programme costs and different benefit definitions compare across the current configuration and any saved scenarios, using the discrete choice experiment, cost templates and epidemiological multipliers. It also reports willingness-to-pay benefits, outbreak-response contributions and benefit cost metrics including benefit cost ratios and net present values.">
+            <div class="card-header-with-info">
+                <h2>Sensitivity and DCE benefit summary</h2>
+                <button type="button"
+                        class="info-icon"
+                        aria-label="Sensitivity and DCE benefit summary information"
+                        data-tooltip="This table shows cost, willingness-to-pay and epidemiological benefit measures for the current configuration and each saved scenario, including benefit cost ratios and endorsement-adjusted effective benefits.">
+                    i
+                </button>
+            </div>
+
+            <p class="hint">
+                This tab brings together preference-based benefits from the discrete choice experiment and the cost and
+                epidemiological modules. It shows the total willingness-to-pay benefit associated with each configuration,
+                the share that is specifically linked to faster outbreak response, any additional outbreak-related benefits
+                from the epidemiological module when activated, and summary cost benefit indicators such as the
+                benefit cost ratio and net present value across different stakeholder groups.
+            </p>
+
+            <p>
+                This view turns the discrete choice experiment estimates, cost templates and epidemiological multipliers
+                into a compact sensitivity table. Each row represents a scenario, starting with the current configuration
+                and followed by any saved scenarios. For each scenario, STEPS recomputes endorsement, economic cost per
+                cohort, willingness-to-pay based benefits, outbreak-response contributions, epidemiological outbreak
+                benefits and combined benefit cost metrics using the mixed logit preference model and opportunity cost setting.
+            </p>
+            <p>
+                Use this table to compare how different benefit definitions perform relative to economic cost. You can
+                see results based on pure DCE willingness to pay, combined DCE and epidemiological outbreak benefits, and
+                endorsement-adjusted effective benefits that weight total benefits by the share of stakeholders who would
+                endorse each configuration.
+            </p>
+            <p class="note">
+                Full formulas and worked numerical examples are set out in the technical appendix, including how
+                willingness to pay is constructed from the discrete choice experiment and how outbreak-related
+                epidemiological benefits are linked to response time.
+                <a href="technical-appendix.html" target="_blank">See the technical appendix for full formulas and worked examples.</a>
+            </p>
+
+            <div class="card card-secondary sensitivity-controls-panel">
+                <h3>Benefit definition and sensitivity settings</h3>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="benefit-definition-select">
                             Benefit definition
-                            <button type="button" class="info-icon" data-tooltip="Choose whether to use raw DCE-based willingness-to-pay or an endorsement-adjusted version that scales benefits by the share of stakeholders who would support the configuration." aria-label="Benefit definition information">i</button>
+                            <button type="button" class="info-icon" aria-label="Benefit definition information"
+                                    data-tooltip="Choose whether to view results based only on DCE willingness-to-pay, to add epidemiological outbreak benefits, or to focus on endorsement-adjusted willingness-to-pay for sensitivity analysis.">
+                                i
+                            </button>
                         </label>
                         <select id="benefit-definition-select">
-                            <option value="wtp_only">Raw WTP (no endorsement adjustment)</option>
-                            <option value="endorsement_adjusted">WTP adjusted for endorsement</option>
+                            <option value="wtp_only">DCE WTP only</option>
+                            <option value="wtp_plus_epi">DCE WTP + epidemiological outbreak benefit</option>
+                            <option value="endorsement_adjusted">Endorsement-adjusted WTP</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="benefit-class-scenario">
-                            Scenario perspective
-                            <button type="button" class="info-icon" data-tooltip="Select whether to view results for the overall mixed logit sample, the supportive latent class or the conservative/resister class." aria-label="Scenario perspective information">i</button>
-                        </label>
-                        <select id="benefit-class-scenario">
-                            <option value="overall">Overall sample (mixed logit)</option>
-                            <option value="supportive">Supportive class (latent class)</option>
-                            <option value="conservative">Conservative/resister class (latent class)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="endorsement-override">
-                            Endorsement override (optional)
-                            <button type="button" class="info-icon" data-tooltip="Enter a different endorsement percentage if you want to test scenarios where endorsement is higher or lower than the model prediction. Values can be entered as percentages (for example 70) or proportions (for example 0.7)." aria-label="Endorsement override information">i</button>
-                        </label>
-                        <input type="number" id="endorsement-override" min="0" max="100" step="1" placeholder="Leave blank to use model prediction">
                         <p class="hint">
-                            Only used when the benefit definition is set to endorsement-adjusted.
+                            Use this control to switch between pure preference-based benefits, combined preference and epidemiological
+                            benefits, or a view that scales willingness-to-pay by endorsement.
                         </p>
                     </div>
+
                     <div class="form-group">
                         <label>
-                            Include outbreak benefits
-                            <button type="button" class="info-icon" data-tooltip="Toggle whether outbreak response benefits from the epidemiological module are added to DCE-based willingness-to-pay when computing combined benefit–cost ratios." aria-label="Outbreak benefits toggle information">i</button>
+                            Include epidemiological outbreak benefits
+                            <button type="button" class="info-icon" aria-label="Include outbreak benefits information"
+                                    data-tooltip="Turn this on to add outbreak-related benefits from the epidemiological module to DCE willingness-to-pay benefits in the combined benefit cost indicators.">
+                                i
+                            </button>
                         </label>
                         <button type="button" id="sensitivity-epi-toggle" class="switch-pill on">
                             <span class="switch-knob"></span>
                             <span class="switch-label">Outbreak benefits included</span>
                         </button>
+                        <p class="hint">
+                            When this switch is off, the epidemiological outbreak benefit column shows that outbreak benefits
+                            are not included and benefit cost indicators reflect DCE willingness-to-pay only.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endorsement-override">
+                            Endorsement rate for sensitivity (%)
+                            <button type="button" class="info-icon" aria-label="Endorsement rate override information"
+                                    data-tooltip="Optional override of the model-predicted endorsement rate. When a value is entered and the endorsement-adjusted view is selected, STEPS uses this rate to scale willingness-to-pay benefits in sensitivity calculations.">
+                                i
+                            </button>
+                        </label>
+                        <input type="number" id="endorsement-override" min="0" max="100" step="1" placeholder="Leave blank to use modelled endorsement">
+                        <p class="hint">
+                            Leave this empty to rely on the endorsement rate from the preference model. Enter a value to test
+                            alternative endorsement assumptions for ministries of health, finance or partners.
+                        </p>
                     </div>
                 </div>
+
                 <div class="button-row">
-                    <button type="button" id="refresh-sensitivity-benefits" class="btn-primary">
-                        Update sensitivity / DCE benefits
+                    <button id="refresh-sensitivity-benefits" type="button" class="btn-primary">
+                        Update sensitivity summary
                     </button>
-                    <button type="button" id="export-sensitivity-benefits-excel" class="btn-secondary">
-                        Export tables to Excel
+                    <button id="export-sensitivity-benefits-excel" type="button" class="btn-secondary">
+                        Download sensitivity table (Excel)
                     </button>
-                    <button type="button" id="export-sensitivity-benefits-pdf" class="btn-ghost">
-                        Export tables to PDF
+                    <button id="export-sensitivity-benefits-pdf" type="button" class="btn-secondary">
+                        Download sensitivity table (PDF)
                     </button>
-                </div>
-
-                <div class="table-wrapper">
-                    <h3>Headline DCE-based benefits across scenarios</h3>
-                    <table class="data-table" id="dce-benefits-table">
-                        <thead>
-                        <tr>
-                            <th>Scenario</th>
-                            <th>Total economic cost, all cohorts</th>
-                            <th>Total WTP, all cohorts</th>
-                            <th>WTP from faster response, all cohorts</th>
-                            <th>Outbreak benefits, all cohorts</th>
-                            <th>Endorsement</th>
-                            <th>Effective WTP (endorsement adjusted)</th>
-                            <th>BCR (WTP only)</th>
-                            <th>Net benefit (WTP only)</th>
-                            <th>BCR (WTP + outbreak benefits)</th>
-                            <th>Net benefit (WTP + outbreak benefits)</th>
-                        </tr>
-                        </thead>
-                        <tbody id="dce-benefits-table-body">
-                        <!-- Filled dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card card-secondary">
-                <div class="card-header-with-info">
-                    <h2>Detailed sensitivity table</h2>
-                    <button type="button" class="info-icon" data-tooltip="More detailed summary per scenario, including per cohort values, effective WTP, supportive class results and combined epidemiological and DCE-based benefits." aria-label="Detailed sensitivity information">i</button>
                 </div>
                 <p class="hint">
-                    Use this table for technical annexes and deeper discussions with economists and analytic teams.
-                    It reports per cohort figures that are useful for checking calculations and building detailed business cases.
+                    The export buttons download the sensitivity table exactly as displayed on screen so that results can be pasted
+                    directly into concept notes, annexes or World Bank and WHO briefing materials.
                 </p>
-                <div class="table-wrapper">
-                    <table class="data-table" id="sensitivity-table">
-                        <thead>
-                        <tr>
-                            <th>Scenario</th>
-                            <th>Model group</th>
-                            <th>Endorsement</th>
-                            <th>Total economic cost per cohort</th>
-                            <th>Total WTP per cohort</th>
-                            <th>WTP from faster response per cohort</th>
-                            <th>Outbreak benefits per cohort</th>
-                            <th>BCR (WTP only)</th>
-                            <th>Net benefit per cohort (WTP only)</th>
-                            <th>BCR (WTP + outbreak benefits)</th>
-                            <th>Net benefit per cohort (WTP + outbreak benefits)</th>
-                            <th>Supportive-class WTP per cohort</th>
-                            <th>Supportive-class BCR (WTP only)</th>
-                            <th>Effective WTP per cohort (endorsement adjusted)</th>
-                            <th>Effective combined benefit per cohort (WTP + outbreak benefits)</th>
-                        </tr>
-                        </thead>
-                        <tbody id="sensitivity-table-body">
-                        <!-- Filled dynamically -->
-                        </tbody>
-                    </table>
+            </div>
+
+            <h3>Headline WTP-based benefits and cost benefit metrics</h3>
+            <p class="hint">
+                The table below summarises programme costs, DCE willingness-to-pay benefits, outbreak-response contributions,
+                epidemiological outbreak benefits where applicable, endorsement-adjusted effective benefits and cost benefit
+                indicators for each scenario over the chosen time horizon.
+            </p>
+
+            <div class="table-wrapper">
+                <table class="data-table" id="dce-benefits-table">
+                    <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Cost (INR, chosen horizon)</th>
+                        <th>Total WTP benefit (INR)</th>
+                        <th>WTP from outbreak response capacity (INR)</th>
+                        <th>Epi-based outbreak benefit (INR)</th>
+                        <th>Endorsement rate used (%)</th>
+                        <th>Effective WTP benefit (INR)</th>
+                        <th>BCR (DCE WTP only)</th>
+                        <th>NPV (DCE WTP only, INR)</th>
+                        <th>BCR (DCE + epi)</th>
+                        <th>NPV (DCE + epi, INR)</th>
+                        <th>Total economic cost, all cohorts (million ₹)</th>
+                        <th>Net benefit, all cohorts (million ₹)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dce-benefits-table-body">
+                    <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="hint">
+                In this table, the cost column shows the relevant economic cost for each scenario over the selected time horizon.
+                Total willingness-to-pay benefits summarise how much value stakeholders place on each configuration, while the
+                outbreak-response column isolates the part of that value linked to faster detection and response. Epidemiological
+                outbreak benefits appear when the outbreak benefit switch is on and the epidemiological module is active. The
+                effective willingness-to-pay benefit scales total willingness to pay by the endorsement rate used in the
+                calculation. Benefit cost ratios compare total benefits with total costs, while net present values show the
+                difference between benefits and costs in rupee terms. Values above one for benefit cost ratios and positive
+                net present values indicate that estimated benefits exceed costs on the assumptions used.
+            </p>
+
+            <h3>Detailed sensitivity matrix</h3>
+            <p>
+                For users who wish to see a more granular breakdown, the detailed matrix below retains the full set of columns
+                needed for the mixed logit sensitivity view. It can be used alongside the headline table above to cross-check
+                results and document alternative model specifications or endorsement assumptions.
+            </p>
+
+            <div class="table-wrapper">
+                <table class="data-table" id="sensitivity-table">
+                    <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Model</th>
+                        <th>Endorsement rate</th>
+                        <th>Cost per cohort (INR)</th>
+                        <th>Total WTP benefit per cohort (INR)</th>
+                        <th>WTP benefit from response capacity (INR)</th>
+                        <th>Epi-based outbreak benefit per cohort (INR)</th>
+                        <th>BCR (DCE WTP only)</th>
+                        <th>NPV (DCE WTP only, INR)</th>
+                        <th>BCR (DCE WTP + epi)</th>
+                        <th>NPV (DCE WTP + epi, INR)</th>
+                        <th>Effective WTP benefit per cohort (INR)</th>
+                        <th>Effective combined benefit per cohort (INR)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sensitivity-table-body">
+                    <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="hint">
+                The “Model” column shows that the mixed logit preference model underpins the willingness-to-pay values in each row.
+                Endorsement-adjusted effective benefits multiply the benefit measure by the endorsement rate for that scenario and
+                are intended for sensitivity analysis rather than for primary cost benefit results.
+            </p>
+        </div>
+    </section>
+
+    <!-- COPILOT TAB -->
+    <section id="tab-copilot" class="tab-panel">
+        <div class="card"
+             data-tour-step="copilot"
+             data-tour-title="Copilot support"
+             data-tour-content="Use this tab after running a scenario to copy a complete interpretation package into Microsoft Copilot for a policy-ready briefing.">
+            <h2>Copilot support for policy interpretation</h2>
+            <p class="note">
+                This tab provides a soft integration with Microsoft Copilot. The STEPS tool does not connect to any external
+                service, does not store data on a server and does not transmit information automatically. Instead, it prepares
+                a complete interpretation package that you can copy and paste into Copilot yourself.
+            </p>
+            <p>
+                To use this feature, first apply your configuration and check the <strong>Results</strong> and
+                <strong>National simulation</strong> tabs. Once you are satisfied with the scenario, come back to this
+                <strong>Copilot support</strong> tab. STEPS will automatically construct a structured prompt that includes
+                the policy interpretation instructions and the JSON for your scenario.
+            </p>
+            <p>
+                The steps are:
+            </p>
+            <ol class="plain-list numbered">
+                <li>Run your analysis inside STEPS and review the endorsement, willingness to pay, costs and epidemiological outputs.</li>
+                <li>Open the <strong>Copilot support</strong> tab and review the prepared text, which combines the interpretation prompt with your scenario JSON.</li>
+                <li>Press <strong>Copy package for Copilot</strong> to copy the full text to your clipboard.</li>
+                <li>Open a new browser tab and go to <strong>https://copilot.microsoft.com</strong>.</li>
+                <li>Paste the copied text into Copilot and run it. Copilot will then generate a structured policy briefing based on your scenario.</li>
+            </ol>
+            <p>
+                Copilot will not run unless you manually transfer the prepared text. You control when and where the content
+                is pasted. Once pasted, Copilot will use the full scenario configuration and the embedded policy interpretation
+                prompt to produce a briefing with tables and analysis of endorsement, willingness to pay, epidemiological
+                benefits, costs, benefit cost ratios and net benefits for scaling up FETP in India.
+            </p>
+
+            <div class="card card-secondary">
+                <h3>Plain language summary</h3>
+                <p id="copilot-summary">
+                    Apply a configuration in the Configuration tab to generate a Copilot-ready interpretation package. The summary
+                    will appear here and will describe what will happen when you paste the text into Copilot.
+                </p>
+            </div>
+
+            <div class="card copilot-package-card">
+                <div class="card-header-with-info">
+                    <h3>Prepared Copilot interpretation package</h3>
+                    <button type="button" class="info-icon"
+                            data-tooltip="This text combines the STEPS policy interpretation prompt with your scenario JSON. Copy it and paste into Microsoft Copilot."
+                            aria-label="Copilot package information">i</button>
                 </div>
+                <p class="hint">
+                    The text below contains the full STEPS FETP India Copilot interpretation prompt followed by the JSON for your
+                    current scenario. Copilot will reconstruct the scenario, explain the configuration in plain language and provide
+                    a cabinet-ready policy brief covering programme tier, intake, mentorship, career incentives, response time,
+                    endorsement, willingness to pay, epidemiological outputs, costs, benefit cost ratio and net benefits.
+                </p>
+                <textarea id="copilot-prompt-text" rows="18" readonly
+                          class="copilot-textarea"
+                          placeholder="Apply a configuration to generate the Copilot interpretation package."></textarea>
+                <div class="button-row">
+                    <button id="copilot-copy-btn" type="button" class="btn-primary">
+                        Copy package for Copilot
+                    </button>
+                    <button id="copilot-regenerate-btn" type="button" class="btn-secondary">
+                        Regenerate package from current scenario
+                    </button>
+                    <button id="copilot-open-link-btn" type="button" class="btn-ghost">
+                        Open copilot.microsoft.com
+                    </button>
+                </div>
+                <p id="copilot-status" class="hint">
+                    No scenario has been applied yet. Apply a configuration to populate the Copilot package.
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- SAVED SCENARIOS TAB -->
+    <!-- SCENARIOS TAB -->
     <section id="tab-scenarios" class="tab-panel">
         <div class="card"
              data-tour-step="scenarios"
              data-tour-title="Saved scenarios"
-             data-tour-content="This tab stores configurations you have saved for later comparison, export to Excel or generation of a short PDF summary.">
+             data-tour-content="Save and compare scenarios here, then export them to Excel or a PDF policy brief for external reporting.">
             <div class="card-header-with-info">
                 <h2>Saved scenarios for comparison</h2>
-                <button type="button" class="info-icon" data-tooltip="Each row represents a saved configuration with its key design features, costs, endorsement, willingness-to-pay and national benefit–cost results." aria-label="Saved scenarios information">i</button>
+                <button type="button" class="info-icon" data-tooltip="Use this table to compare configurations that look promising and to export them for external reporting." aria-label="Saved scenarios information">i</button>
             </div>
-            <p class="hint">
-                After applying and interpreting a configuration, save it using the <strong>Save scenario</strong> button
-                in the Configuration tab. Saved scenarios appear here and feed into the National simulation and DCE benefit
-                sensitivity views. You can export this table for World Bank documentation and internal reports.
+            <p>
+                Use this table to compare FETP options and support the business case for the World Bank and
+                other partners. Saved scenarios are also used for downloads.
             </p>
-
             <div class="button-row">
-                <button type="button" id="export-excel" class="btn-secondary">
-                    Export scenarios to Excel
-                </button>
-                <button type="button" id="export-pdf" class="btn-ghost">
-                    Export summary to PDF
-                </button>
+                <button id="export-excel" class="btn-secondary" type="button">Download scenarios to Excel</button>
+                <button id="export-pdf" class="btn-secondary" type="button">Download policy brief PDF</button>
             </div>
-
             <div class="table-wrapper">
-                <table class="data-table" id="scenario-table">
+                <table id="scenario-table" class="data-table">
                     <thead>
                     <tr>
-                        <th>Select</th>
-                        <th>Scenario name</th>
+                        <th>Shortlist</th>
+                        <th>Name</th>
                         <th>Tags</th>
-                        <th>Tier</th>
+                        <th>Programme tier</th>
                         <th>Career incentive</th>
                         <th>Mentorship</th>
-                        <th>Delivery</th>
+                        <th>Delivery mode</th>
                         <th>Response time</th>
                         <th>Cohorts</th>
                         <th>Trainees per cohort</th>
@@ -989,11 +1101,11 @@
                         <th>Endorsement</th>
                         <th>WTP per trainee per month</th>
                         <th>Total WTP (all cohorts)</th>
-                        <th>BCR (epidemiological)</th>
+                        <th>Benefit cost ratio</th>
                         <th>Total economic cost (all cohorts)</th>
-                        <th>Total epidemiological benefit (all cohorts)</th>
+                        <th>Total indicative epidemiological benefit (all cohorts)</th>
                         <th>Net epidemiological benefit (all cohorts)</th>
-                        <th>Outbreak responses per year (all cohorts)</th>
+                        <th>Outbreak responses per year</th>
                         <th>Notes</th>
                     </tr>
                     </thead>
@@ -1005,96 +1117,32 @@
         </div>
     </section>
 
-    <!-- COPILOT / AI BRIEFING TAB -->
-    <section id="tab-copilot" class="tab-panel">
-        <div class="grid-two-stretch"
-             data-tour-step="copilot"
-             data-tour-title="Copilot integration"
-             data-tour-content="Use this tab to send a structured JSON summary of the current scenario to Microsoft Copilot for an AI-generated policy briefing.">
-            <div class="card">
-                <div class="card-header-with-info">
-                    <h2>Use Copilot for AI-assisted policy briefings</h2>
-                    <button type="button" class="info-icon" data-tooltip="This tab helps you open Microsoft Copilot with a pre-formatted prompt that includes a JSON summary of the current scenario from STEPS." aria-label="Copilot briefing information">i</button>
-                </div>
-                <p>
-                    This tab supports a soft integration between the STEPS decision aid and Microsoft Copilot.
-                    When you click the button below, STEPS constructs a detailed prompt that:
-                </p>
-                <p>
-                    summarises the current configuration, endorsement, DCE-based willingness-to-pay, epidemiological benefits,
-                    total economic costs, benefit–cost ratios and net benefits; and embeds a JSON representation of the
-                    scenario that Copilot can parse to produce a tailored policy briefing.
-                </p>
-                <p>
-                    The prompt is copied to your clipboard, and a new browser tab opens at
-                    the Copilot web interface. You can then paste the prompt into Copilot to obtain an AI-generated
-                    briefing suitable for senior decision makers, cabinet notes and World Bank discussions.
-                </p>
-                <p class="note">
-                    The STEPS tool does not send any data automatically to Copilot or to external servers.
-                    All interaction is initiated by you when you paste the prompt into Copilot.
-                </p>
-
-                <div class="button-row">
-                    <button type="button" id="open-in-copilot" class="btn-primary">
-                        Open in Copilot and copy scenario prompt
-                    </button>
-                </div>
-
-                <p class="hint">
-                    Make sure you have applied a configuration in the Configuration tab before using this feature.
-                    The Copilot prompt is based on the most recent scenario results, including the DCE-based cost–benefit
-                    summary from the model.
-                </p>
-            </div>
-
-            <div class="card card-secondary">
-                <h2>What Copilot will receive</h2>
-                <p>
-                    Copilot receives a structured prompt that asks it to act as a senior health economist advising
-                    the Ministry of Health and Family Welfare in India on national scale-up of FETP. The prompt explains:
-                </p>
-                <ul class="plain-list">
-                    <li>How the scenario is configured, including tier, career incentives, mentorship, delivery mode, response time and cohort structure.</li>
-                    <li>How endorsement and willingness-to-pay from the discrete choice experiment should be interpreted as preference-based evidence for or against scale-up.</li>
-                    <li>How epidemiological outputs such as graduates and outbreak responses translate into monetary benefits.</li>
-                    <li>How total economic costs, benefit–cost ratios and net benefits should inform value-for-money judgements.</li>
-                </ul>
-                <p>
-                    Copilot is instructed to turn this into a concise policy briefing with clear sections and narrative suitable
-                    for high-level steering committees and financing discussions. You can then refine or adapt that text
-                    to local needs.
-                </p>
-            </div>
-        </div>
-    </section>
-
     <!-- ABOUT TAB -->
     <section id="tab-about" class="tab-panel">
         <div class="card"
              data-tour-step="about"
              data-tour-title="About STEPS"
-             data-tour-content="Background on the STEPS decision aid, its intended use and limitations.">
-            <h2>About the STEPS decision aid</h2>
+             data-tour-content="Background on how STEPS fits into a broader business case for FETP investment in India.">
+            <h2>About STEPS</h2>
             <p>
-                STEPS is a decision-support tool developed to help the Ministry of Health and Family Welfare in India
-                and its partners explore investment options for Field Epidemiology Training Programmes (FETP). It brings
-                together:
+                The University of Newcastle is developing a business case for strengthening and scaling FETP
+                programmes in India. STEPS is one of the tools in
+                this work. It provides a structured way to test scale-up options and explain cost, benefit and
+                willingness-to-pay implications in policy discussions.
+            </p>
+            <p>
+                The tool is designed to support the Government of India and partners
+                as they plan investments in epidemiology training. It helps answer questions such as:
             </p>
             <ul class="plain-list">
-                <li>A discrete choice experiment with key stakeholders to quantify preferences and willingness to pay for different programme designs.</li>
-                <li>Costing templates assembled from WHO, NIE and NCDC to capture realistic programme and economic costs.</li>
-                <li>Simple epidemiological multipliers to translate graduates and response times into indicative health benefits.</li>
+                <li>How do costs, willingness to pay and benefits change when moving from Frontline to Intermediate or Advanced tiers?</li>
+                <li>What happens to endorsement when mentorship intensity is increased?</li>
+                <li>How many cohorts and trainees are needed to reach target scale?</li>
             </ul>
-            <p>
-                The tool is intended for use in workshops, technical working group meetings, investment case development
-                and World Bank discussions. It is not a forecasting model and should be used alongside detailed costing,
-                epidemiological modelling and implementation planning.
-            </p>
             <p class="note">
-                STEPS outputs are highly dependent on the assumptions in the discrete choice experiment, cost templates
-                and epidemiological parameters. Users should review, update and document these assumptions regularly,
-                especially when moving from exploratory analysis to formal investment cases.
+                Prepared by <strong>Mesfin Genie, PhD</strong>, Newcastle Business School, The University of
+                Newcastle, Australia. For questions or clarifications please contact
+                <a href="mailto:mesfin.genie@newcastle.edu.au">mesfin.genie@newcastle.edu.au</a>.
             </p>
         </div>
     </section>
@@ -1102,183 +1150,215 @@
     <!-- TECHNICAL / ADVANCED TAB -->
     <section id="tab-technical" class="tab-panel">
         <div class="grid-two-stretch"
-             data-tour-step="technical"
-             data-tour-title="Advanced assumptions and methods"
-             data-tour-content="Adjust key epidemiological multipliers, display currency settings and review an assumption log for documentation and reporting.">
+             data-tour-step="advanced"
+             data-tour-title="Advanced settings and methods"
+             data-tour-content="Use these settings to align STEPS assumptions with country estimates and to access the detailed technical appendix. Changes apply within this browser session.">
             <div class="card">
-                <div class="card-header-with-info">
-                    <h2>Advanced settings</h2>
-                    <button type="button" class="info-icon" data-tooltip="Use these controls to adjust key epidemiological and currency assumptions. Changes update all calculations and are logged in the assumption summary." aria-label="Advanced settings information">i</button>
-                </div>
-                <p class="hint">
-                    These settings control how the epidemiological and monetary benefits are calculated. They should
-                    normally be set once for a given round of analysis and documented in technical annexes.
+                <h2>Advanced settings and assumptions</h2>
+                <p>
+                    This panel allows technical users to adjust key multipliers for workshops without editing code.
+                    Changes affect calculations immediately in this browser session and are reflected in the Results,
+                    National simulation and Sensitivity / DCE benefits tabs.
                 </p>
-                <div class="form-grid">
-                    <div class="form-group">
+                <p class="note">
+                    Use these settings when you want to align STEPS assumptions with updated national estimates or
+                    discussions with partner organisations. For example, you can change the indicative value per graduate or per outbreak
+                    response, or match the INR to USD display rate to current exchange rates. The technical appendix also sets out how
+                    willingness-to-pay is derived from the discrete choice experiment and used as an additional benefit metric.
+                </p>
+                <form id="advanced-settings-form" class="form-grid">
+                    <div class="form-group form-group-wide">
                         <label for="adv-inr-per-usd">
-                            INR per USD (display only)
-                            <button type="button" class="info-icon" data-tooltip="Exchange rate used to display approximate USD values. All calculations remain in INR." aria-label="INR per USD information">i</button>
+                            Exchange rate for display (INR per USD)
+                            <button type="button" class="info-icon" data-tooltip="Used only to convert INR values into USD for display. Changing this does not affect calculations, only the USD labels shown in the interface." aria-label="Exchange rate information">i</button>
                         </label>
-                        <input type="number" id="adv-inr-per-usd" min="1" step="0.1">
+                        <input type="number" id="adv-inr-per-usd" step="0.1" min="10" max="500">
+                        <p class="hint">Used only for currency display. All calculations are in INR.</p>
                     </div>
 
-                    <div class="form-group form-group-wide">
-                        <h3>Frontline tier settings</h3>
-                    </div>
+                    <!-- Frontline -->
                     <div class="form-group">
                         <label for="adv-frontline-grads">
-                            Graduates per cohort (share of trainees)
-                            <button type="button" class="info-icon" data-tooltip="Expected share of trainees who complete Frontline training and become effective graduates." aria-label="Frontline graduates information">i</button>
+                            Frontline graduates per cohort (share of trainees)
+                            <button type="button" class="info-icon" data-tooltip="Share of trainees that successfully graduate from a Frontline cohort. For example 0.9 means 90 percent of trainees graduate." aria-label="Frontline graduates information">i</button>
                         </label>
-                        <input type="number" id="adv-frontline-grads" min="0" max="1" step="0.01">
+                        <input type="number" id="adv-frontline-grads" step="0.01" min="0" max="1">
                     </div>
                     <div class="form-group">
                         <label for="adv-frontline-outbreaks">
-                            Outbreak responses per cohort per year
-                            <button type="button" class="info-icon" data-tooltip="Average number of outbreak responses per cohort per year supported by Frontline graduates." aria-label="Frontline outbreaks information">i</button>
+                            Frontline outbreak responses per cohort per year
+                            <button type="button" class="info-icon" data-tooltip="Approximate number of outbreak responses that a typical Frontline cohort supports each year once graduates are deployed." aria-label="Frontline outbreak responses information">i</button>
                         </label>
-                        <input type="number" id="adv-frontline-outbreaks" min="0" step="0.01">
+                        <input type="number" id="adv-frontline-outbreaks" step="0.1" min="0">
                     </div>
                     <div class="form-group">
                         <label for="adv-frontline-vgrad">
-                            Value per graduate (INR)
-                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value associated with each Frontline graduate over the planning horizon." aria-label="Frontline value per graduate information">i</button>
+                            Value per Frontline graduate (INR)
+                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value placed on one additional trained Frontline graduate, capturing better surveillance and response capacity." aria-label="Frontline value per graduate information">i</button>
                         </label>
-                        <input type="number" id="adv-frontline-vgrad" min="0" step="1000">
+                        <input type="number" id="adv-frontline-vgrad" step="10000" min="0">
                     </div>
                     <div class="form-group">
                         <label for="adv-frontline-voutbreak">
-                            Value per outbreak response (INR)
-                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value of each outbreak response supported by Frontline graduates." aria-label="Frontline value per outbreak information">i</button>
+                            Value per Frontline outbreak response (INR)
+                            <button type="button" class="info-icon" data-tooltip="Indicative value per outbreak response supported by graduates, for example avoided cases or deaths monetised for business case purposes." aria-label="Frontline value per outbreak response information">i</button>
                         </label>
-                        <input type="number" id="adv-frontline-voutbreak" min="0" step="1000">
+                        <input type="number" id="adv-frontline-voutbreak" step="100000" min="0">
                     </div>
 
-                    <div class="form-group form-group-wide">
-                        <h3>Intermediate tier settings</h3>
-                    </div>
+                    <!-- Intermediate -->
                     <div class="form-group">
                         <label for="adv-intermediate-grads">
-                            Graduates per cohort (share of trainees)
-                            <button type="button" class="info-icon" data-tooltip="Expected share of trainees who complete Intermediate training and become effective graduates." aria-label="Intermediate graduates information">i</button>
+                            Intermediate graduates per cohort (share of trainees)
+                            <button type="button" class="info-icon" data-tooltip="Share of trainees that successfully graduate from an Intermediate cohort." aria-label="Intermediate graduates information">i</button>
                         </label>
-                        <input type="number" id="adv-intermediate-grads" min="0" max="1" step="0.01">
+                        <input type="number" id="adv-intermediate-grads" step="0.01" min="0" max="1">
                     </div>
                     <div class="form-group">
                         <label for="adv-intermediate-outbreaks">
-                            Outbreak responses per cohort per year
-                            <button type="button" class="info-icon" data-tooltip="Average number of outbreak responses per cohort per year supported by Intermediate graduates." aria-label="Intermediate outbreaks information">i</button>
+                            Intermediate outbreak responses per cohort per year
+                            <button type="button" class="info-icon" data-tooltip="Approximate number of outbreak responses that an Intermediate cohort supports each year." aria-label="Intermediate outbreak responses information">i</button>
                         </label>
-                        <input type="number" id="adv-intermediate-outbreaks" min="0" step="0.01">
+                        <input type="number" id="adv-intermediate-outbreaks" step="0.1" min="0">
                     </div>
                     <div class="form-group">
                         <label for="adv-intermediate-vgrad">
-                            Value per graduate (INR)
-                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value associated with each Intermediate graduate over the planning horizon." aria-label="Intermediate value per graduate information">i</button>
+                            Value per Intermediate graduate (INR)
+                            <button type="button" class="info-icon" data-tooltip="Indicative value per additional Intermediate graduate." aria-label="Intermediate value per graduate information">i</button>
                         </label>
-                        <input type="number" id="adv-intermediate-vgrad" min="0" step="1000">
+                        <input type="number" id="adv-intermediate-vgrad" step="10000" min="0">
                     </div>
                     <div class="form-group">
                         <label for="adv-intermediate-voutbreak">
-                            Value per outbreak response (INR)
-                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value of each outbreak response supported by Intermediate graduates." aria-label="Intermediate value per outbreak information">i</button>
+                            Value per Intermediate outbreak response (INR)
+                            <button type="button" class="info-icon" data-tooltip="Indicative value per outbreak response supported by Intermediate graduates." aria-label="Intermediate value per outbreak response information">i</button>
                         </label>
-                        <input type="number" id="adv-intermediate-voutbreak" min="0" step="1000">
+                        <input type="number" id="adv-intermediate-voutbreak" step="100000" min="0">
                     </div>
 
-                    <div class="form-group form-group-wide">
-                        <h3>Advanced tier settings</h3>
-                    </div>
+                    <!-- Advanced -->
                     <div class="form-group">
                         <label for="adv-advanced-grads">
-                            Graduates per cohort (share of trainees)
-                            <button type="button" class="info-icon" data-tooltip="Expected share of trainees who complete Advanced training and become effective graduates." aria-label="Advanced graduates information">i</button>
+                            Advanced graduates per cohort (share of trainees)
+                            <button type="button" class="info-icon" data-tooltip="Share of trainees that successfully graduate from an Advanced cohort, often assumed to be high given the selectiveness of Advanced programmes." aria-label="Advanced graduates information">i</button>
                         </label>
-                        <input type="number" id="adv-advanced-grads" min="0" max="1" step="0.01">
+                        <input type="number" id="adv-advanced-grads" step="0.01" min="0" max="1">
                     </div>
                     <div class="form-group">
                         <label for="adv-advanced-outbreaks">
-                            Outbreak responses per cohort per year
-                            <button type="button" class="info-icon" data-tooltip="Average number of outbreak responses per cohort per year supported by Advanced graduates." aria-label="Advanced outbreaks information">i</button>
+                            Advanced outbreak responses per cohort per year
+                            <button type="button" class="info-icon" data-tooltip="Approximate number of outbreak responses that an Advanced cohort supports per year, reflecting the more strategic roles of graduates." aria-label="Advanced outbreak responses information">i</button>
                         </label>
-                        <input type="number" id="adv-advanced-outbreaks" min="0" step="0.01">
+                        <input type="number" id="adv-advanced-outbreaks" step="0.1" min="0">
                     </div>
                     <div class="form-group">
                         <label for="adv-advanced-vgrad">
-                            Value per graduate (INR)
-                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value associated with each Advanced graduate over the planning horizon." aria-label="Advanced value per graduate information">i</button>
+                            Value per Advanced graduate (INR)
+                            <button type="button" class="info-icon" data-tooltip="Indicative value per Advanced graduate, capturing leadership, analytic capacity and system-wide impacts." aria-label="Advanced value per graduate information">i</button>
                         </label>
-                        <input type="number" id="adv-advanced-vgrad" min="0" step="1000">
+                        <input type="number" id="adv-advanced-vgrad" step="10000" min="0">
                     </div>
                     <div class="form-group">
                         <label for="adv-advanced-voutbreak">
-                            Value per outbreak response (INR)
-                            <button type="button" class="info-icon" data-tooltip="Indicative monetary value of each outbreak response supported by Advanced graduates." aria-label="Advanced value per outbreak information">i</button>
+                            Value per Advanced outbreak response (INR)
+                            <button type="button" class="info-icon" data-tooltip="Indicative value per outbreak response supported by Advanced graduates, often higher due to more complex events." aria-label="Advanced value per outbreak response information">i</button>
                         </label>
-                        <input type="number" id="adv-advanced-voutbreak" min="0" step="1000">
+                        <input type="number" id="adv-advanced-voutbreak" step="100000" min="0">
                     </div>
-                </div>
 
-                <div class="button-row">
-                    <button type="button" id="advanced-apply" class="btn-primary">
-                        Apply advanced settings
-                    </button>
-                    <button type="button" id="advanced-reset" class="btn-ghost">
-                        Reset to defaults
-                    </button>
-                </div>
+                    <div class="form-group form-group-wide">
+                        <div class="button-row">
+                            <button type="button" id="advanced-apply" class="btn-primary">Apply advanced settings</button>
+                            <button type="button" id="advanced-reset" class="btn-ghost">Reset to defaults</button>
+                        </div>
+                    </div>
+                </form>
                 <p class="note">
-                    These settings can also be loaded from an external <code>epi_config.json</code> file. When that file is
-                    present in the same folder, STEPS will read it on start up and use it as the baseline.
+                    Country teams can also supply an <code>epi_config.json</code> file with multipliers and indicative values that STEPS
+                    will load automatically. This keeps epidemiological and benefit assumptions separate from the main code base.
                 </p>
+                <div class="assumption-log">
+                    <h3>Assumption log</h3>
+                    <p>
+                        This box summarises the current key assumptions. Copy and paste it directly into meeting minutes
+                        or technical annexes so it is clear which parameters were used.
+                    </p>
+                    <pre id="assumption-log-text" class="assumption-log-text">
+STEPS assumption log will appear here after advanced settings and a configuration are applied.
+                    </pre>
+                </div>
             </div>
 
-            <div class="card card-secondary">
-                <h2>Assumption log</h2>
+            <div class="card">
+                <h2>Technical appendix and model description</h2>
                 <p>
-                    The assumption log provides a text record of key epidemiological and currency assumptions used in the
-                    current session. It is intended to be copied into technical appendices, meeting minutes and World Bank
-                    documentation to keep the link between the STEPS tool and the underlying investment case.
+                    The technical appendix explains how STEPS uses discrete choice experiment estimates, cost
+                    templates, willingness-to-pay measures and epidemiological multipliers. It includes numerical
+                    examples based on the final mixed logit model and the willingness-to-pay results.
                 </p>
-                <pre id="assumption-log-text" class="assumption-log"></pre>
+                <p>
+                    Open the full appendix in a separate window for easier reading or printing. The appendix is written
+                    for policy audiences but also contains enough detail for technical reviewers.
+                </p>
+                <div class="button-row">
+                    <a id="open-technical-window" href="technical-appendix.html" target="_blank" class="btn-secondary">
+                        Open full technical appendix
+                    </a>
+                </div>
+                <div id="technical-preview" class="technical-preview">
+                    <p>
+                        The appendix covers the preference model, endorsement probabilities, willingness to pay,
+                        cost templates, epidemiological multipliers and national simulation logic. It includes step-by-step
+                        worked examples that match typical configurations such as Advanced programmes with high mentorship,
+                        and shows how total WTP sits alongside epidemiological benefits in business case discussions.
+                    </p>
+                </div>
             </div>
         </div>
     </section>
 </main>
 
-<!-- RESULTS MODAL -->
-<div id="results-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="results-modal-title">
+<!-- SNAPSHOT MODAL -->
+<div id="results-modal" class="modal hidden" aria-hidden="true" role="dialog" aria-labelledby="results-modal-title">
     <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="results-modal-title">Scenario summary</h2>
-            <button type="button" id="close-modal" class="modal-close" aria-label="Close summary">×</button>
-        </div>
-        <div id="modal-body" class="modal-body">
+        <button class="modal-close" id="close-modal" aria-label="Close scenario summary">&times;</button>
+        <h2 id="results-modal-title">Scenario summary</h2>
+        <div id="modal-body">
             <!-- Filled dynamically -->
         </div>
     </div>
 </div>
 
-<!-- TOAST NOTIFICATIONS -->
+<!-- TOAST -->
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-<!-- TOUR OVERLAY AND POPOVER -->
-<div id="tour-overlay" class="tour-overlay hidden"></div>
-<div id="tour-popover" class="tour-popover hidden" role="dialog" aria-modal="false">
-    <div class="tour-header">
+<!-- GUIDED TOUR OVERLAY -->
+<div id="tour-overlay" class="tour-overlay hidden" aria-hidden="true"></div>
+<div id="tour-popover"
+     class="tour-popover hidden"
+     role="dialog"
+     aria-modal="false"
+     aria-labelledby="tour-title">
+    <div class="tour-popover-header">
         <h3 id="tour-title">Tour step</h3>
-        <button type="button" id="tour-close" class="tour-close" aria-label="Close tour">×</button>
+        <button type="button" id="tour-close" class="tour-close-btn" aria-label="Close tour">&times;</button>
     </div>
-    <div id="tour-content" class="tour-content"></div>
-    <div class="tour-footer">
-        <span id="tour-step-indicator" class="tour-step-indicator">1 / 1</span>
+    <div id="tour-content" class="tour-popover-body">
+        <!-- Filled dynamically -->
+    </div>
+    <div class="tour-popover-footer">
+        <span id="tour-step-indicator" class="tour-step-indicator"></span>
         <div class="tour-buttons">
-            <button type="button" id="tour-prev" class="btn-ghost-small">Previous</button>
+            <button type="button" id="tour-prev" class="btn-ghost-small">Back</button>
             <button type="button" id="tour-next" class="btn-primary-small">Next</button>
         </div>
     </div>
 </div>
+
+<!-- Hidden inline template for technical appendix window (legacy, kept for completeness but main link uses separate file) -->
+<script type="text/plain" id="technical-appendix-template">
+<!-- This template is retained for backward compatibility. The main technical appendix now lives in technical-appendix.html. -->
+</script>
 
 <!-- MAIN SCRIPT -->
 <script src="script.js"></script>

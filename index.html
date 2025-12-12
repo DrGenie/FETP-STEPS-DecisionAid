@@ -834,14 +834,28 @@
                 </div>
                 <div class="metric-pair metric-pair-tight">
                     <div class="metric-block">
-                        <span class="metric-label">Endorse FETP option</span>
+                        <span class="metric-label">
+                            Endorse FETP option
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Estimated percentage of stakeholders who would support investing in this FETP configuration rather than choosing the opt out alternative, given the attributes and cost you have selected."
+                                    title="Endorse FETP option information"
+                                    aria-label="Endorse FETP option information">i</button>
+                        </span>
                         <span class="metric-value" id="endorsement-rate">-</span>
                         <p class="metric-caption">
                             Estimated share of stakeholders who would support funding this programme rather than choosing the opt out option.
                         </p>
                     </div>
                     <div class="metric-block">
-                        <span class="metric-label">Choose opt out</span>
+                        <span class="metric-label">
+                            Choose opt out
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Estimated percentage of stakeholders who would prefer not to invest in this configuration and instead choose the opt out alternative of no new FETP training."
+                                    title="Choose opt out information"
+                                    aria-label="Choose opt out information">i</button>
+                        </span>
                         <span class="metric-value" id="optout-rate">-</span>
                         <p class="metric-caption">
                             Estimated share who would prefer not to invest in this option under the assumptions in the preference study.
@@ -864,14 +878,28 @@
                 </div>
                 <div class="metric-pair metric-pair-tight">
                     <div class="metric-block">
-                        <span class="metric-label">WTP per trainee per month</span>
+                        <span class="metric-label">
+                            WTP per trainee per month
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Approximate rupee value per trainee per month that stakeholders in the preference study are willing to pay for this configuration, calculated by dividing attribute coefficients by the cost coefficient in the mixed logit model."
+                                    title="WTP per trainee per month information"
+                                    aria-label="WTP per trainee per month information">i</button>
+                        </span>
                         <span class="metric-value" id="wtp-per-trainee">-</span>
                         <p class="metric-caption">
                             Approximate value stakeholders place on this configuration per trainee per month, relative to the baseline design used in the preference study.
                         </p>
                     </div>
                     <div class="metric-block">
-                        <span class="metric-label">Total WTP per cohort</span>
+                        <span class="metric-label">
+                            Total WTP per cohort
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Total WTP across one cohort, obtained by multiplying WTP per trainee per month by cohort size and programme duration for the selected tier."
+                                    title="Total WTP per cohort information"
+                                    aria-label="Total WTP per cohort information">i</button>
+                        </span>
                         <span class="metric-value" id="wtp-total-cohort">-</span>
                         <p class="metric-caption">
                             WTP per trainee per month multiplied by trainees per cohort and programme duration, treating stakeholder preferences as an additional, indicative benefit measure.
@@ -880,14 +908,28 @@
                 </div>
                 <div class="metric-pair metric-pair-tight">
                     <div class="metric-block">
-                        <span class="metric-label">Programme cost per cohort</span>
+                        <span class="metric-label">
+                            Programme cost per cohort
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Total financial cost of running one cohort of the selected programme, built from the combined cost components and cohort structure before adding any opportunity cost of trainee time."
+                                    title="Programme cost per cohort information"
+                                    aria-label="Programme cost per cohort information">i</button>
+                        </span>
                         <span class="metric-value" id="prog-cost-per-cohort">-</span>
                         <p class="metric-caption">
                             Direct programme cost per cohort before adding any opportunity cost of trainee time.
                         </p>
                     </div>
                     <div class="metric-block">
-                        <span class="metric-label">Total economic cost per cohort</span>
+                        <span class="metric-label">
+                            Total economic cost per cohort
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Programme cost per cohort plus the value of trainee time where the opportunity cost switch is on. This is the main cost figure used in benefit cost ratios and net present value calculations."
+                                    title="Total economic cost per cohort information"
+                                    aria-label="Total economic cost per cohort information">i</button>
+                        </span>
                         <span class="metric-value" id="total-cost">-</span>
                         <p class="metric-caption">
                             Programme cost plus opportunity cost where applicable. This is the main cost figure used in benefit cost ratios.
@@ -895,14 +937,28 @@
                     </div>
                 </div>
                 <div class="metric-single">
-                    <span class="metric-label">Net benefit per cohort (epidemiological)</span>
+                    <span class="metric-label">
+                        Net benefit per cohort (epidemiological)
+                        <button type="button"
+                                class="info-icon"
+                                data-tooltip="Approximate monetary value of large outbreaks averted or reduced per cohort, minus the total economic cost per cohort, based on the epidemiological module and the chosen value per outbreak."
+                                title="Net epidemiological benefit per cohort information"
+                                aria-label="Net epidemiological benefit per cohort information">i</button>
+                    </span>
                     <span class="metric-value" id="net-benefit">-</span>
                     <p class="metric-caption">
                         Indicative outbreak related economic cost saving per cohort minus total economic cost per cohort, based on large outbreaks averted. WTP is reported separately as a preference based benefit metric.
                     </p>
                 </div>
                 <div class="metric-single">
-                    <span class="metric-label">Benefit cost ratio (per cohort)</span>
+                    <span class="metric-label">
+                        Benefit cost ratio (per cohort)
+                        <button type="button"
+                                class="info-icon"
+                                data-tooltip="Indicative epidemiological outbreak benefit per cohort divided by total economic cost per cohort for the chosen planning horizon and discount rate. Values above one suggest that approximate outbreak related benefits exceed costs."
+                                title="Benefit cost ratio per cohort information"
+                                aria-label="Benefit cost ratio per cohort information">i</button>
+                    </span>
                     <span class="metric-value" id="bcr">-</span>
                     <p class="metric-caption">
                         Indicative outbreak related benefit per cohort divided by total economic cost per cohort. Values above one suggest that approximate outbreak related benefits exceed costs on the assumptions used.
@@ -924,14 +980,28 @@
                 </div>
                 <div class="metric-pair metric-pair-tight">
                     <div class="metric-block">
-                        <span class="metric-label">FETP graduates (all cohorts)</span>
+                        <span class="metric-label">
+                            FETP graduates (all cohorts)
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Approximate number of graduates produced across all planned cohorts, calculated from cohort size, number of cohorts, predicted endorsement and the completion rate selected in the Settings tab."
+                                    title="FETP graduates information"
+                                    aria-label="FETP graduates information">i</button>
+                        </span>
                         <span class="metric-value" id="epi-graduates">-</span>
                         <p class="metric-caption">
                             Estimated number of graduates produced across all planned cohorts, adjusting for endorsement and completion rates.
                         </p>
                     </div>
                     <div class="metric-block">
-                        <span class="metric-label">Outbreak responses per year</span>
+                        <span class="metric-label">
+                            Outbreak responses per year
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Approximate annual number of outbreak or public health event responses that graduates from this configuration are expected to contribute to once they are in post, based on the outbreaks per graduate multiplier."
+                                    title="Outbreak responses per year information"
+                                    aria-label="Outbreak responses per year information">i</button>
+                        </span>
                         <span class="metric-value" id="epi-outbreaks">-</span>
                         <p class="metric-caption">
                             Approximate number of outbreak responses that could be supported per year once all graduates are in post under this configuration.
@@ -939,7 +1009,14 @@
                     </div>
                 </div>
                 <div class="metric-single">
-                    <span class="metric-label">Indicative epidemiological benefit per cohort</span>
+                    <span class="metric-label">
+                        Indicative epidemiological benefit per cohort
+                        <button type="button"
+                                class="info-icon"
+                                data-tooltip="Approximate monetary value of outbreak responses per cohort, derived by combining graduates, outbreak responses per graduate, planning horizon, discount rate and the indicative value per outbreak from the Settings tab."
+                                title="Indicative epidemiological benefit per cohort information"
+                                aria-label="Indicative epidemiological benefit per cohort information">i</button>
+                    </span>
                     <span class="metric-value" id="epi-benefit">-</span>
                     <p class="metric-caption">
                         Approximate monetary value of outbreak responses per cohort using the value per outbreak specified in the Settings tab or epidemiological configuration file. The core focus is on large outbreak cost savings rather than separate graduate value estimates.
@@ -1049,26 +1126,61 @@
                     <h3>National economic picture</h3>
                     <div class="metric-pair metric-pair-tight">
                         <div class="metric-block">
-                            <span class="metric-label">Total economic cost (all cohorts)</span>
+                            <span class="metric-label">
+                                Total economic cost (all cohorts)
+                                <button type="button"
+                                        class="info-icon"
+                                        data-tooltip="Total economic cost across all cohorts, combining programme cost and any opportunity cost of trainee time for the selected configuration and number of cohorts."
+                                        title="Total economic cost all cohorts information"
+                                        aria-label="Total economic cost all cohorts information">i</button>
+                            </span>
                             <span class="metric-value" id="nat-total-cost">-</span>
                         </div>
                         <div class="metric-block">
-                            <span class="metric-label">Total indicative epidemiological benefit (all cohorts)</span>
+                            <span class="metric-label">
+                                Total indicative epidemiological benefit (all cohorts)
+                                <button type="button"
+                                        class="info-icon"
+                                        data-tooltip="Approximate total outbreak related economic benefit across all cohorts at national level, based on the epidemiological module and the chosen value per outbreak."
+                                        title="Total indicative epidemiological benefit all cohorts information"
+                                        aria-label="Total indicative epidemiological benefit all cohorts information">i</button>
+                            </span>
                             <span class="metric-value" id="nat-total-benefit">-</span>
                         </div>
                     </div>
                     <div class="metric-pair metric-pair-tight">
                         <div class="metric-block">
-                            <span class="metric-label">National net benefit (epidemiological)</span>
+                            <span class="metric-label">
+                                National net benefit (epidemiological)
+                                <button type="button"
+                                        class="info-icon"
+                                        data-tooltip="Total indicative epidemiological benefit minus total economic cost across all cohorts, representing the national net benefit from large outbreaks averted or reduced under the chosen assumptions."
+                                        title="National net epidemiological benefit information"
+                                        aria-label="National net epidemiological benefit information">i</button>
+                            </span>
                             <span class="metric-value" id="nat-net-benefit">-</span>
                         </div>
                         <div class="metric-block">
-                            <span class="metric-label">National benefit cost ratio</span>
+                            <span class="metric-label">
+                                National benefit cost ratio
+                                <button type="button"
+                                        class="info-icon"
+                                        data-tooltip="Ratio of total indicative epidemiological benefit to total economic cost across all cohorts. It mirrors the cohort level benefit cost ratio but expressed for the national scale."
+                                        title="National benefit cost ratio information"
+                                        aria-label="National benefit cost ratio information">i</button>
+                            </span>
                             <span class="metric-value" id="nat-bcr">-</span>
                         </div>
                     </div>
                     <div class="metric-single">
-                        <span class="metric-label">Total WTP (all cohorts)</span>
+                        <span class="metric-label">
+                            Total WTP (all cohorts)
+                            <button type="button"
+                                    class="info-icon"
+                                    data-tooltip="Aggregated WTP across all trainees and cohorts for the national configuration, treating stakeholder preferences as an additional benefit measure alongside epidemiological benefits."
+                                    title="Total WTP all cohorts information"
+                                    aria-label="Total WTP all cohorts information">i</button>
+                        </span>
                         <span class="metric-value" id="nat-total-wtp">-</span>
                         <p class="metric-caption">
                             Aggregated WTP across all trainees and cohorts, reflecting stakeholder valuation of the chosen configuration alongside epidemiological benefits.
@@ -1086,11 +1198,25 @@
                     <h3>National epidemiological impact</h3>
                     <div class="metric-pair metric-pair-tight">
                         <div class="metric-block">
-                            <span class="metric-label">Total FETP graduates</span>
+                            <span class="metric-label">
+                                Total FETP graduates
+                                <button type="button"
+                                        class="info-icon"
+                                        data-tooltip="Total number of graduates from all cohorts at national level, calculated from endorsement, completion rate and cohort structure."
+                                        title="Total FETP graduates national information"
+                                        aria-label="Total FETP graduates national information">i</button>
+                            </span>
                             <span class="metric-value" id="nat-graduates">-</span>
                         </div>
                         <div class="metric-block">
-                            <span class="metric-label">Outbreak responses supported per year</span>
+                            <span class="metric-label">
+                                Outbreak responses supported per year
+                                <button type="button"
+                                        class="info-icon"
+                                        data-tooltip="Approximate number of outbreak responses that could be supported each year at national level by all graduates produced under this configuration."
+                                        title="Outbreak responses supported national information"
+                                        aria-label="Outbreak responses supported national information">i</button>
+                            </span>
                             <span class="metric-value" id="nat-outbreaks">-</span>
                         </div>
                     </div>
@@ -1191,6 +1317,14 @@
                         </select>
                         <p class="hint">
                             These options adjust the indicative outbreak cost saving used in combined benefit calculations for this tab.
+                        </p>
+                        <div class="button-row">
+                            <button id="apply-outbreak-value-btn" type="button" class="btn-secondary">
+                                Apply value
+                            </button>
+                        </div>
+                        <p class="hint">
+                            After changing the dropdown, click Apply value to refresh the sensitivity calculations and charts for the selected outbreak value.
                         </p>
                     </div>
 

@@ -529,22 +529,68 @@ function initTooltips() {
   });
 }
 
-/* Definitions for WTP and mixed logit, attached if icons exist */
+/* Definitions for WTP, mixed logit and key sections */
 
 function initDefinitionTooltips() {
   const wtpInfo = document.getElementById("wtp-info");
-  if (wtpInfo && !wtpInfo.getAttribute("data-tooltip")) {
+  if (wtpInfo) {
     wtpInfo.setAttribute(
       "data-tooltip",
-      "Willingness to pay (WTP) is the average amount that stakeholders in the preference study would pay per trainee per month for this programme instead of the opt out."
+      "WTP per trainee per month is derived from the preference model by dividing attribute coefficients by the cost coefficient. It is an approximate rupee value stakeholders attach to this configuration. Total WTP aggregates this value across trainees and cohorts. All benefit values are indicative approximations."
     );
   }
+
+  const wtpSectionInfo = document.getElementById("wtp-section-info");
+  if (wtpSectionInfo && !wtpSectionInfo.getAttribute("data-tooltip")) {
+    wtpSectionInfo.setAttribute(
+      "data-tooltip",
+      "WTP indicators summarise how much value stakeholders attach to each configuration in rupees per trainee and over all cohorts. They are based on the mixed logit preference model and should be read as indicative support rather than precise market prices."
+    );
+  }
+
   const mxlInfo = document.getElementById("mixedlogit-info");
   if (mxlInfo && !mxlInfo.getAttribute("data-tooltip")) {
     mxlInfo.setAttribute(
       "data-tooltip",
-      "The mixed logit preference study model allows preferences to differ across decision makers rather than assuming one average pattern."
+      "The mixed logit preference model allows preferences to vary across decision makers instead of assuming a single average pattern, which makes endorsement and WTP estimates more flexible."
     );
+  }
+
+  const epiInfo = document.getElementById("epi-implications-info");
+  if (epiInfo && !epiInfo.getAttribute("data-tooltip")) {
+    epiInfo.setAttribute(
+      "data-tooltip",
+      "Graduates and outbreak responses are obtained by combining endorsement with cohort size and number of cohorts. The indicative outbreak cost saving per cohort converts expected outbreak responses into monetary terms using the outbreak value and planning horizon set in the settings."
+    );
+  }
+
+  const endorseInfo = document.getElementById("endorsement-optout-info");
+  if (endorseInfo && !endorseInfo.getAttribute("data-tooltip")) {
+    endorseInfo.setAttribute(
+      "data-tooltip",
+      "These percentages come from the mixed logit preference model and show how attractive the configuration is relative to opting out in the preference study."
+    );
+  }
+
+  const sensInfo = document.getElementById("sensitivity-headline-info");
+  if (sensInfo && !sensInfo.getAttribute("data-tooltip")) {
+    sensInfo.setAttribute(
+      "data-tooltip",
+      "In this summary, the cost column shows the economic cost for each scenario over the selected time horizon. Total economic cost and net benefit are aggregated across all cohorts in millions of rupees. Total WTP benefits summarise how much value stakeholders place on each configuration, while the outbreak response column isolates the part of that value linked to faster detection and response. Epidemiological outbreak benefits appear when the outbreak benefit switch is on and the epidemiological module is active. The effective WTP benefit scales total WTP by the endorsement rate used in the calculation. Benefit cost ratios compare total benefits with total costs, and net present values show the difference between benefits and costs in rupee terms. Values above one for benefit cost ratios and positive net present values indicate that estimated benefits exceed costs under the current assumptions."
+    );
+  }
+
+  const copilotInfo = document.getElementById("copilot-howto-info");
+  const copilotText = document.getElementById("copilot-howto-text");
+  if (copilotInfo && !copilotInfo.getAttribute("data-tooltip")) {
+    copilotInfo.setAttribute(
+      "data-tooltip",
+      "First, use the other STEPS tabs to define a scenario you want to interpret. Apply the configuration, review endorsement, WTP, costs and epidemiological outbreak benefits, and check the national and sensitivity views. When you are ready, move to the Copilot tab to prepare a narrative briefing. When you press the Copilot button, STEPS rebuilds the interpretation prompt using the latest scenario and model outputs. The prompt combines a short description of STEPS, instructions for Copilot and the full JSON export for the current scenario. The aim is to guide Copilot to prepare a three to five page policy brief for discussions with ministries, World Bank staff and other partners. The brief is requested as a narrative report with clear sections such as background, scenario description, endorsement patterns, costs, epidemiological benefits, benefit cost ratios, net present values, distributional considerations and implementation notes, and includes compact tables for key indicators. After copying the text from the prompt panel, open Microsoft Copilot in a new browser tab or in the window that STEPS opens, paste the full content into the prompt box and run it. You can then edit the draft policy brief in Copilot or in your preferred word processor, keeping a record of the assumptions and JSON values supplied by STEPS."
+    );
+  }
+  if (copilotText) {
+    copilotText.textContent =
+      "Define a scenario in the other tabs, then use this Copilot tab to generate a draft policy brief. Copy the prepared prompt into Microsoft Copilot and refine the brief there.";
   }
 }
 
@@ -877,6 +923,8 @@ function computeCosts(config) {
   };
 }
 
+/* Epidemiology now uses outbreak cost saving only, not graduate monetary benefits */
+
 function computeEpidemiological(config, endorseRate) {
   const tierSettings = appState.epiSettings.tiers[config.tier];
   const general = appState.epiSettings.general;
@@ -884,14 +932,12 @@ function computeEpidemiological(config, endorseRate) {
   const completionRate = tierSettings.completionRate;
   const outbreaksPerGrad =
     tierSettings.outbreaksPerGraduatePerYear;
-  const valuePerGraduate = tierSettings.valuePerGraduate;
   const valuePerOutbreak = tierSettings.valuePerOutbreak;
 
   const planningYears = general.planningHorizonYears;
   const discountRate = general.epiDiscountRate;
 
   const pvFactor = presentValueFactor(discountRate, planningYears);
-
   const endorseFactor = endorseRate / 100;
 
   const months = TIER_MONTHS[config.tier] || 12;
@@ -913,12 +959,10 @@ function computeEpidemiological(config, endorseRate) {
   const outbreaksPerYearNational =
     outbreaksPerYearPerCohort * config.cohorts;
 
-  const graduateBenefitPerCohort =
-    graduatesEffective * valuePerGraduate;
+  const graduateBenefitPerCohort = 0;
 
   const outbreakAnnualBenefitPerCohort =
     outbreaksPerYearPerCohort * valuePerOutbreak;
-
   const outbreakPVPerCohort =
     outbreakAnnualBenefitPerCohort * pvFactor;
 
@@ -1073,7 +1117,7 @@ function updateBcrChart(scenario) {
   const ctxId = "chart-bcr";
   const existing = appState.charts.bcr;
   const data = {
-    labels: ["Indicative epidemiological benefit", "Economic cost"],
+    labels: ["Indicative outbreak cost saving", "Economic cost"],
     datasets: [
       {
         label: "Per cohort (INR)",
@@ -1163,7 +1207,7 @@ function updateNatCostBenefitChart(scenario) {
   const data = {
     labels: [
       "Total economic cost (all cohorts)",
-      "Total indicative epidemiological benefit (all cohorts)"
+      "Total outbreak cost saving (all cohorts)"
     ],
     datasets: [
       {
@@ -1422,7 +1466,7 @@ function updateConfigSummary(scenario) {
         ? formatNumber(scenario.bcrPerCohort, 2)
         : "-";
     headlineText.textContent =
-      `The preference study mixed logit model suggests an endorsement rate of about ${endorse} percent, an economic cost of ${cost} per cohort and an indicative epidemiological benefit cost ratio near ${bcr}. These values give a starting point for discussions with ministries and partners.`;
+      `The mixed logit preference model points to an endorsement rate of about ${endorse} percent, an economic cost of ${cost} per cohort and an indicative outbreak cost saving to cost ratio near ${bcr}. These values give a concise starting point for discussions with ministries and partners.`;
   }
 
   const briefingEl = document.getElementById(
@@ -1442,16 +1486,16 @@ function updateConfigSummary(scenario) {
         ? formatNumber(scenario.natBcr, 2)
         : "-";
     briefingEl.textContent =
-      `With this configuration, the preference study suggests that ${formatNumber(
+      `With this configuration, about ${formatNumber(
         scenario.endorseRate,
         1
-      )} percent of stakeholders would endorse the investment. Running ${formatNumber(
+      )} percent of stakeholders are expected to endorse the investment. Running ${formatNumber(
         scenario.config.cohorts,
         0
       )} cohorts of ${formatNumber(
         scenario.config.traineesPerCohort,
         0
-      )} trainees leads to a total economic cost of roughly ${natCost} over the planning horizon and an indicative epidemiological cost saving of roughly ${natBenefit}. The national benefit cost ratio is around ${natBcr}, based on the current values per graduate and per outbreak response set in the settings and methods.`;
+      )} trainees leads to a total economic cost of roughly ${natCost} over the planning horizon and an indicative outbreak related economic cost saving of roughly ${natBenefit}. The national benefit cost ratio is around ${natBcr}, based on the outbreak value and epidemiological assumptions set in the settings and methods.`;
   }
 }
 
@@ -1732,18 +1776,18 @@ function updateNationalSimulationTab(scenario) {
       )} outbreak responses per year once all cohorts are complete. The total economic cost across all cohorts is roughly ${formatCurrencyDisplay(
         natCost,
         0
-      )}, while the indicative epidemiological cost saving is roughly ${formatCurrencyDisplay(
+      )}, while the indicative outbreak related economic cost saving is roughly ${formatCurrencyDisplay(
         natBenefit,
         0
       )}. This implies a national benefit cost ratio of about ${
         natBcr !== null ? formatNumber(natBcr, 2) : "-"
-      } and a net epidemiological cost saving of ${formatCurrencyDisplay(
+      } and a net outbreak related cost saving of ${formatCurrencyDisplay(
         natNet,
         0
       )}. Total willingness to pay across all cohorts is roughly ${formatCurrencyDisplay(
         natTotalWtp,
         0
-      )}, which can be viewed alongside epidemiological benefits when preparing business cases.`;
+      )}, which can be viewed alongside outbreak benefits when preparing business cases.`;
   }
 
   updateNatCostBenefitChart(scenario);
@@ -1878,9 +1922,9 @@ function exportScenariosToExcel() {
     "WTP per trainee per month (INR)",
     "Total WTP all cohorts (INR)",
     "Total economic cost all cohorts (INR)",
-    "Indicative epidemiological benefit all cohorts (INR)",
-    "Net epidemiological benefit all cohorts (INR)",
-    "Benefit cost ratio (epidemiological)"
+    "Indicative outbreak cost saving all cohorts (INR)",
+    "Net outbreak cost saving all cohorts (INR)",
+    "Benefit cost ratio (outbreak benefits)"
   ]);
 
   appState.savedScenarios.forEach((s) => {
@@ -1993,7 +2037,7 @@ function exportScenariosToPdf() {
       `Total economic cost all cohorts (INR): ${formatNumber(
         s.natTotalCost,
         0
-      )} | Indicative epidemiological benefit (INR): ${formatNumber(
+      )} | Indicative outbreak cost saving (INR): ${formatNumber(
         s.epiBenefitAllCohorts,
         0
       )}`,
@@ -2002,7 +2046,7 @@ function exportScenariosToPdf() {
     );
     y += 5;
     doc.text(
-      `Net epidemiological benefit (INR): ${formatNumber(
+      `Net outbreak cost saving (INR): ${formatNumber(
         s.netBenefitAllCohorts,
         0
       )} | Benefit cost ratio: ${
@@ -2311,6 +2355,16 @@ function exportSensitivityToPdf() {
 
   let y = 18;
   doc.setFontSize(9);
+
+  const headerCells = Array.from(
+    table.querySelectorAll("thead th")
+  ).map((th) => th.textContent.trim());
+  if (headerCells.length) {
+    const headerLine = headerCells.join(" | ");
+    doc.text(headerLine, 10, y);
+    y += 6;
+  }
+
   const rows = Array.from(
     table.querySelectorAll("tbody tr")
   );
@@ -2318,6 +2372,12 @@ function exportSensitivityToPdf() {
     if (y > 190) {
       doc.addPage();
       y = 10;
+      doc.setFontSize(9);
+      if (headerCells.length) {
+        const headerLine = headerCells.join(" | ");
+        doc.text(headerLine, 10, y);
+        y += 6;
+      }
     }
     const cells = Array.from(tr.children).map((td) =>
       td.textContent.trim()
@@ -2436,7 +2496,7 @@ function initAdvancedSettings() {
         appState.usdRate = usdRate;
 
         writeLog(
-          "Advanced settings updated for non outbreak value per graduate per year, value per outbreak, completion rate, outbreaks per graduate, planning horizon, discount rate and INR per USD."
+          "Advanced settings updated for graduate value, value per outbreak, completion rate, outbreaks per graduate, planning horizon, discount rate and INR per USD. Current outbreak cost saving calculations use the outbreak value and planning horizon."
         );
 
         if (appState.currentScenario) {
@@ -2506,7 +2566,8 @@ function initAdvancedSettings() {
   }
 }
 
-/* Helper to apply outbreak value presets from Sensitivity tab */
+/* Helper to apply outbreak value presets from Sensitivity tab
+   Dropdown is defined in ₹ billion, so convert to rupees here */
 
 function applyOutbreakPreset(valueInINR) {
   if (isNaN(valueInINR) || valueInINR <= 0) return;
@@ -2779,7 +2840,7 @@ function openSnapshotModal(scenario) {
         scenario.costs.totalEconomicCostPerCohort,
         0
       )}</p>
-      <p><strong>Indicative epidemiological benefit per cohort:</strong> ${formatCurrencyDisplay(
+      <p><strong>Indicative outbreak cost saving per cohort:</strong> ${formatCurrencyDisplay(
         scenario.epiBenefitPerCohort,
         0
       )}</p>
@@ -2792,11 +2853,11 @@ function openSnapshotModal(scenario) {
         scenario.natTotalCost,
         0
       )}</p>
-      <p><strong>Indicative epidemiological benefit all cohorts:</strong> ${formatCurrencyDisplay(
+      <p><strong>Indicative outbreak cost saving all cohorts:</strong> ${formatCurrencyDisplay(
         scenario.epiBenefitAllCohorts,
         0
       )}</p>
-      <p><strong>Net epidemiological benefit all cohorts:</strong> ${formatCurrencyDisplay(
+      <p><strong>Net outbreak cost saving all cohorts:</strong> ${formatCurrencyDisplay(
         scenario.netBenefitAllCohorts,
         0
       )}</p>
@@ -2881,6 +2942,29 @@ function initEventHandlers() {
       refreshAllOutputs(scenario);
       showToast(
         "Configuration applied and results updated.",
+        "success"
+      );
+    });
+  }
+
+  /* Settings tab Apply button (previously inactive) */
+
+  const settingsApplyBtn =
+    document.getElementById("settings-apply") ||
+    document.getElementById("settings-apply-btn") ||
+    document.getElementById("apply-settings");
+
+  if (settingsApplyBtn) {
+    settingsApplyBtn.addEventListener("click", () => {
+      if (appState.currentScenario) {
+        const scenario = computeScenario(
+          appState.currentScenario.config
+        );
+        appState.currentScenario = scenario;
+        refreshAllOutputs(scenario);
+      }
+      showToast(
+        "Settings applied for this session.",
         "success"
       );
     });
@@ -3008,7 +3092,8 @@ function initEventHandlers() {
     outbreakPresetSelect.addEventListener("change", () => {
       const raw = Number(outbreakPresetSelect.value);
       if (!isNaN(raw) && raw > 0) {
-        applyOutbreakPreset(raw);
+        const valueInINR = raw * 1e9;
+        applyOutbreakPreset(valueInINR);
       }
     });
   }

@@ -403,7 +403,9 @@ function showToast(message, type = "info") {
    =========================== */
 
 function initTooltips() {
-  const icons = Array.from(document.querySelectorAll(".info-icon"));
+  const icons = Array.from(
+    document.querySelectorAll(".info-icon,[data-tooltip]")
+  );
   if (!icons.length) return;
 
   icons.forEach((icon) => {
@@ -593,8 +595,6 @@ function initDefinitionTooltips() {
       "Define a scenario in the other tabs, then use this Copilot tab to generate a draft policy brief. Copy the prepared prompt into Microsoft Copilot and refine the brief there.";
   }
 
-  /* Additional definition tooltips requested */
-
   const optOutAltInfo = document.getElementById("optout-alt-info");
   if (optOutAltInfo && !optOutAltInfo.getAttribute("data-tooltip")) {
     optOutAltInfo.setAttribute(
@@ -626,8 +626,6 @@ function initDefinitionTooltips() {
       "The preference model is a mixed logit estimated from the preference study. It predicts endorsement and opt out shares and provides willingness to pay values that STEPS uses to summarise how much value stakeholders attach to each configuration."
     );
   }
-
-  /* Results tab tooltips */
 
   const resEndorseInfo = document.getElementById("result-endorsement-info");
   if (resEndorseInfo && !resEndorseInfo.getAttribute("data-tooltip")) {
@@ -716,8 +714,6 @@ function initDefinitionTooltips() {
       "The outbreak related epidemiological benefit per cohort converts expected outbreak responses into monetary terms using the value per outbreak and the present value factor implied by the discount rate and planning horizon."
     );
   }
-
-  /* National simulation tab tooltips */
 
   const natTotalCostInfo = document.getElementById("natsim-total-cost-info");
   if (natTotalCostInfo && !natTotalCostInfo.getAttribute("data-tooltip")) {
@@ -954,7 +950,6 @@ function getConfigFromForm() {
   const mentorship = document.getElementById("mentorship").value;
   const delivery = document.getElementById("delivery").value;
 
-  // Outbreak response fixed at 7 days by design
   let response = "7";
   const responseEl = document.getElementById("response");
   if (responseEl) {
@@ -1104,8 +1099,6 @@ function computeCosts(config) {
     template
   };
 }
-
-/* Epidemiology now uses outbreak cost saving only, not graduate monetary benefits */
 
 function computeEpidemiological(config, endorseRate) {
   const tierSettings = appState.epiSettings.tiers[config.tier];
@@ -2516,10 +2509,19 @@ function exportSensitivityToPdf() {
     );
     return;
   }
+
+  const table = document.getElementById("dce-benefits-table");
+  if (!table) {
+    showToast(
+      "Sensitivity table is not available on this page.",
+      "error"
+    );
+    return;
+  }
+
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({
-    orientation: "landscape"
-  });
+  const doc = new jsPDF({ orientation: "landscape" });
+
   doc.setFontSize(14);
   doc.text(
     "STEPS FETP India Decision Aid - WTP based benefits and sensitivity",
@@ -2527,49 +2529,55 @@ function exportSensitivityToPdf() {
     10
   );
 
-  const table = document.getElementById(
-    "dce-benefits-table"
-  );
+  const headRow = table.querySelector("thead tr");
+  const head = [];
+  if (headRow) {
+    head.push(
+      Array.from(headRow.children).map((th) =>
+        th.textContent.trim()
+      )
+    );
+  }
 
-  if (table && doc.autoTable) {
+  const body = [];
+  const bodyRows = table.querySelectorAll("tbody tr");
+  bodyRows.forEach((tr) => {
+    const row = Array.from(tr.children).map((td) =>
+      td.textContent.trim()
+    );
+    body.push(row);
+  });
+
+  if (doc.autoTable && head.length && body.length) {
     doc.setFontSize(9);
     doc.autoTable({
-      html: "#dce-benefits-table",
+      head,
+      body,
       startY: 16,
       styles: { fontSize: 8, cellPadding: 2 },
-      margin: { left: 10, right: 10 }
+      headStyles: { fillColor: [240, 240, 240] },
+      margin: { left: 10, right: 10 },
+      tableWidth: "wrap"
     });
-  } else if (table) {
+  } else {
     let y = 18;
     doc.setFontSize(9);
-
-    const headerCells = Array.from(
-      table.querySelectorAll("thead th")
-    ).map((th) => th.textContent.trim());
-    if (headerCells.length) {
-      const headerLine = headerCells.join(" | ");
+    if (head.length) {
+      const headerLine = head[0].join(" | ");
       doc.text(headerLine, 10, y);
       y += 6;
     }
-
-    const rows = Array.from(
-      table.querySelectorAll("tbody tr")
-    );
-    rows.forEach((tr, idx) => {
+    body.forEach((row, idx) => {
       if (y > 190) {
         doc.addPage();
         y = 10;
-        doc.setFontSize(9);
-        if (headerCells.length) {
-          const headerLine = headerCells.join(" | ");
+        if (head.length) {
+          const headerLine = head[0].join(" | ");
           doc.text(headerLine, 10, y);
           y += 6;
         }
       }
-      const cells = Array.from(tr.children).map((td) =>
-        td.textContent.trim()
-      );
-      const text = cells.join(" | ");
+      const text = row.join(" | ");
       doc.text(`${idx + 1}. ${text}`, 10, y);
       y += 5;
     });
@@ -2585,8 +2593,6 @@ function exportSensitivityToPdf() {
 /* ===========================
    Advanced settings
    =========================== */
-
-/* Shared helper to write to the visible settings log box */
 
 function logSettingsMessage(message) {
   const targets = [];
@@ -2631,9 +2637,6 @@ function initAdvancedSettings() {
   );
   const resetBtn = document.getElementById(
     "adv-reset-settings"
-  );
-  const logBox = document.getElementById(
-    "adv-settings-log"
   );
 
   function writeLog(message) {
@@ -2767,9 +2770,6 @@ function initAdvancedSettings() {
   }
 }
 
-/* Helper to apply outbreak value presets from Sensitivity tab
-   Dropdown is defined in ₹ billion, so convert to rupees here */
-
 function applyOutbreakPreset(valueInINR) {
   if (isNaN(valueInINR) || valueInINR <= 0) return;
 
@@ -2791,6 +2791,10 @@ function applyOutbreakPreset(valueInINR) {
     appState.currentScenario = newScenario;
     refreshAllOutputs(newScenario);
   }
+
+  logSettingsMessage(
+    `Value per outbreak updated to ₹${formatNumber(valueInINR, 0)} per outbreak for all tiers from sensitivity controls.`
+  );
 
   showToast(
     `Value per outbreak set to ₹${formatNumber(valueInINR, 0)} for all tiers.`,
@@ -3148,12 +3152,12 @@ function initEventHandlers() {
     });
   }
 
-  /* Settings tab Apply button (activate and log settings) */
-
   const settingsApplyBtn =
     document.getElementById("settings-apply") ||
     document.getElementById("settings-apply-btn") ||
-    document.getElementById("apply-settings");
+    document.getElementById("apply-settings") ||
+    document.querySelector('[data-settings-apply="true"]') ||
+    document.querySelector('[data-role="settings-apply"]');
 
   if (settingsApplyBtn) {
     settingsApplyBtn.addEventListener("click", () => {
@@ -3369,8 +3373,8 @@ document.addEventListener("DOMContentLoaded", () => {
   COST_CONFIG = COST_TEMPLATES;
 
   initTabs();
-  initTooltips();
   initDefinitionTooltips();
+  initTooltips();
   initGuidedTour();
   initAdvancedSettings();
   initCopilot();

@@ -592,6 +592,188 @@ function initDefinitionTooltips() {
     copilotText.textContent =
       "Define a scenario in the other tabs, then use this Copilot tab to generate a draft policy brief. Copy the prepared prompt into Microsoft Copilot and refine the brief there.";
   }
+
+  /* Additional definition tooltips requested */
+
+  const optOutAltInfo = document.getElementById("optout-alt-info");
+  if (optOutAltInfo && !optOutAltInfo.getAttribute("data-tooltip")) {
+    optOutAltInfo.setAttribute(
+      "data-tooltip",
+      "The opt out alternative represents a situation where no new FETP training is funded under the scenario being considered. STEPS treats this as the benchmark of no new FETP investment when calculating endorsement and opt out rates."
+    );
+  }
+
+  const costComponentsInfo = document.getElementById("cost-components-info");
+  if (costComponentsInfo && !costComponentsInfo.getAttribute("data-tooltip")) {
+    costComponentsInfo.setAttribute(
+      "data-tooltip",
+      "Cost components group programme expenses for each tier, including salaries and benefits, travel, training inputs, trainee support and indirect items such as opportunity cost. STEPS combines these shares into a single cost per trainee per month for the configuration."
+    );
+  }
+
+  const oppCostInfo = document.getElementById("opp-cost-info");
+  if (oppCostInfo && !oppCostInfo.getAttribute("data-tooltip")) {
+    oppCostInfo.setAttribute(
+      "data-tooltip",
+      "The opportunity cost of trainee time reflects the value of salary time that trainees spend in training instead of normal duties, per trainee per month. If the opportunity cost switch is on, STEPS adds this value to the economic cost of each cohort."
+    );
+  }
+
+  const prefModelInfo = document.getElementById("preference-model-info");
+  if (prefModelInfo && !prefModelInfo.getAttribute("data-tooltip")) {
+    prefModelInfo.setAttribute(
+      "data-tooltip",
+      "The preference model is a mixed logit estimated from the preference study. It predicts endorsement and opt out shares and provides willingness to pay values that STEPS uses to summarise how much value stakeholders attach to each configuration."
+    );
+  }
+
+  /* Results tab tooltips */
+
+  const resEndorseInfo = document.getElementById("result-endorsement-info");
+  if (resEndorseInfo && !resEndorseInfo.getAttribute("data-tooltip")) {
+    resEndorseInfo.setAttribute(
+      "data-tooltip",
+      "The endorsement rate is the predicted share of decision makers who would choose this FETP configuration rather than the opt out alternative, based on the mixed logit preference model."
+    );
+  }
+
+  const resOptOutInfo = document.getElementById("result-optout-info");
+  if (resOptOutInfo && !resOptOutInfo.getAttribute("data-tooltip")) {
+    resOptOutInfo.setAttribute(
+      "data-tooltip",
+      "The opt out rate is the predicted share of decision makers who would prefer not to fund any new FETP training under this configuration. It complements the endorsement rate and always sums to one hundred percent with it."
+    );
+  }
+
+  const resWtpTraineeInfo = document.getElementById("result-wtp-trainee-info");
+  if (resWtpTraineeInfo && !resWtpTraineeInfo.getAttribute("data-tooltip")) {
+    resWtpTraineeInfo.setAttribute(
+      "data-tooltip",
+      "Willingness to pay per trainee per month is calculated by dividing the non cost utility for the configuration by the absolute value of the cost coefficient and multiplying by one thousand. It is an approximate rupee value that stakeholders attach to the training package for each trainee per month."
+    );
+  }
+
+  const resWtpCohortInfo = document.getElementById("result-wtp-cohort-info");
+  if (resWtpCohortInfo && !resWtpCohortInfo.getAttribute("data-tooltip")) {
+    resWtpCohortInfo.setAttribute(
+      "data-tooltip",
+      "Total willingness to pay per cohort multiplies the willingness to pay per trainee per month by the number of months in the programme and the trainees per cohort. It summarises the indicative value stakeholders attach to one cohort of the chosen configuration."
+    );
+  }
+
+  const resProgCostInfo = document.getElementById("result-prog-cost-info");
+  if (resProgCostInfo && !resProgCostInfo.getAttribute("data-tooltip")) {
+    resProgCostInfo.setAttribute(
+      "data-tooltip",
+      "Programme cost per cohort is the direct financial cost of running one cohort, calculated as the cost per trainee per month times the number of months in the programme and the number of trainees."
+    );
+  }
+
+  const resTotalCostInfo = document.getElementById("result-total-cost-info");
+  if (resTotalCostInfo && !resTotalCostInfo.getAttribute("data-tooltip")) {
+    resTotalCostInfo.setAttribute(
+      "data-tooltip",
+      "Total economic cost per cohort adds the opportunity cost of trainee time to the programme cost when the opportunity cost switch is on. It is the cost concept used in the benefit cost ratios and net benefits."
+    );
+  }
+
+  const resNetBenefitInfo = document.getElementById("result-net-benefit-info");
+  if (resNetBenefitInfo && !resNetBenefitInfo.getAttribute("data-tooltip")) {
+    resNetBenefitInfo.setAttribute(
+      "data-tooltip",
+      "Net outbreak benefit per cohort is the difference between the discounted outbreak related epidemiological benefit and the total economic cost per cohort. Positive values indicate that outbreak benefits exceed costs under the current assumptions."
+    );
+  }
+
+  const resBcrInfo = document.getElementById("result-bcr-info");
+  if (resBcrInfo && !resBcrInfo.getAttribute("data-tooltip")) {
+    resBcrInfo.setAttribute(
+      "data-tooltip",
+      "The benefit cost ratio per cohort divides the discounted outbreak benefit per cohort by the total economic cost per cohort. Values above one indicate that estimated benefits exceed costs."
+    );
+  }
+
+  const resEpiGradsInfo = document.getElementById("result-epi-graduates-info");
+  if (resEpiGradsInfo && !resEpiGradsInfo.getAttribute("data-tooltip")) {
+    resEpiGradsInfo.setAttribute(
+      "data-tooltip",
+      "The number of graduates across all cohorts is based on the trainees per cohort, the completion rate for the chosen tier and the endorsement rate from the preference model. It describes how many additional field epidemiologists complete training under the configuration."
+    );
+  }
+
+  const resEpiOutbreaksInfo = document.getElementById("result-epi-outbreaks-info");
+  if (resEpiOutbreaksInfo && !resEpiOutbreaksInfo.getAttribute("data-tooltip")) {
+    resEpiOutbreaksInfo.setAttribute(
+      "data-tooltip",
+      "Outbreak responses per year combine the number of graduates with the assumed outbreaks handled per graduate per year and the response time multiplier. Faster response times increase the number of outbreak responses credited to the programme."
+    );
+  }
+
+  const resEpiBenefitInfo = document.getElementById("result-epi-benefit-info");
+  if (resEpiBenefitInfo && !resEpiBenefitInfo.getAttribute("data-tooltip")) {
+    resEpiBenefitInfo.setAttribute(
+      "data-tooltip",
+      "The outbreak related epidemiological benefit per cohort converts expected outbreak responses into monetary terms using the value per outbreak and the present value factor implied by the discount rate and planning horizon."
+    );
+  }
+
+  /* National simulation tab tooltips */
+
+  const natTotalCostInfo = document.getElementById("natsim-total-cost-info");
+  if (natTotalCostInfo && !natTotalCostInfo.getAttribute("data-tooltip")) {
+    natTotalCostInfo.setAttribute(
+      "data-tooltip",
+      "Total economic cost across all cohorts is the economic cost per cohort multiplied by the number of cohorts configured. It is the main cost input to national level benefit cost calculations."
+    );
+  }
+
+  const natTotalBenefitInfo = document.getElementById("natsim-total-benefit-info");
+  if (natTotalBenefitInfo && !natTotalBenefitInfo.getAttribute("data-tooltip")) {
+    natTotalBenefitInfo.setAttribute(
+      "data-tooltip",
+      "Total outbreak related economic benefit across all cohorts is the discounted outbreak benefit per cohort multiplied by the number of cohorts. It reflects the monetary value attached to outbreak responses over the planning horizon."
+    );
+  }
+
+  const natNetBenefitInfo = document.getElementById("natsim-net-benefit-info");
+  if (natNetBenefitInfo && !natNetBenefitInfo.getAttribute("data-tooltip")) {
+    natNetBenefitInfo.setAttribute(
+      "data-tooltip",
+      "Net outbreak related benefit at national level is the difference between total outbreak related benefits and total economic costs across all cohorts. Positive values indicate that the programme is expected to save more in outbreak related costs than it spends."
+    );
+  }
+
+  const natBcrInfo = document.getElementById("natsim-bcr-info");
+  if (natBcrInfo && !natBcrInfo.getAttribute("data-tooltip")) {
+    natBcrInfo.setAttribute(
+      "data-tooltip",
+      "The national benefit cost ratio compares total outbreak related benefits with total economic costs across all cohorts. Values above one suggest that the programme generates more outbreak related savings than it costs."
+    );
+  }
+
+  const natGradsInfo = document.getElementById("natsim-graduates-info");
+  if (natGradsInfo && !natGradsInfo.getAttribute("data-tooltip")) {
+    natGradsInfo.setAttribute(
+      "data-tooltip",
+      "Total graduates over the planning horizon combine the number of cohorts, trainees per cohort, completion rates and endorsement rates. They show the scale of trained field epidemiologists produced under the configuration."
+    );
+  }
+
+  const natOutbreaksInfo = document.getElementById("natsim-outbreaks-info");
+  if (natOutbreaksInfo && !natOutbreaksInfo.getAttribute("data-tooltip")) {
+    natOutbreaksInfo.setAttribute(
+      "data-tooltip",
+      "Outbreak responses per year at national level aggregate the expected outbreak responses handled by all graduates across all cohorts, after adjusting for the response time multiplier."
+    );
+  }
+
+  const natTotalWtpInfo = document.getElementById("natsim-total-wtp-info");
+  if (natTotalWtpInfo && !natTotalWtpInfo.getAttribute("data-tooltip")) {
+    natTotalWtpInfo.setAttribute(
+      "data-tooltip",
+      "Total willingness to pay across all cohorts multiplies the cohort level willingness to pay by the number of cohorts. It summarises the indicative value stakeholders place on the full scale up configuration."
+    );
+  }
 }
 
 /* ===========================
@@ -2348,44 +2530,50 @@ function exportSensitivityToPdf() {
   const table = document.getElementById(
     "dce-benefits-table"
   );
-  if (!table) {
-    doc.save("steps_sensitivity_summary.pdf");
-    return;
-  }
 
-  let y = 18;
-  doc.setFontSize(9);
+  if (table && doc.autoTable) {
+    doc.setFontSize(9);
+    doc.autoTable({
+      html: "#dce-benefits-table",
+      startY: 16,
+      styles: { fontSize: 8, cellPadding: 2 },
+      margin: { left: 10, right: 10 }
+    });
+  } else if (table) {
+    let y = 18;
+    doc.setFontSize(9);
 
-  const headerCells = Array.from(
-    table.querySelectorAll("thead th")
-  ).map((th) => th.textContent.trim());
-  if (headerCells.length) {
-    const headerLine = headerCells.join(" | ");
-    doc.text(headerLine, 10, y);
-    y += 6;
-  }
-
-  const rows = Array.from(
-    table.querySelectorAll("tbody tr")
-  );
-  rows.forEach((tr, idx) => {
-    if (y > 190) {
-      doc.addPage();
-      y = 10;
-      doc.setFontSize(9);
-      if (headerCells.length) {
-        const headerLine = headerCells.join(" | ");
-        doc.text(headerLine, 10, y);
-        y += 6;
-      }
+    const headerCells = Array.from(
+      table.querySelectorAll("thead th")
+    ).map((th) => th.textContent.trim());
+    if (headerCells.length) {
+      const headerLine = headerCells.join(" | ");
+      doc.text(headerLine, 10, y);
+      y += 6;
     }
-    const cells = Array.from(tr.children).map((td) =>
-      td.textContent.trim()
+
+    const rows = Array.from(
+      table.querySelectorAll("tbody tr")
     );
-    const text = cells.join(" | ");
-    doc.text(`${idx + 1}. ${text}`, 10, y);
-    y += 5;
-  });
+    rows.forEach((tr, idx) => {
+      if (y > 190) {
+        doc.addPage();
+        y = 10;
+        doc.setFontSize(9);
+        if (headerCells.length) {
+          const headerLine = headerCells.join(" | ");
+          doc.text(headerLine, 10, y);
+          y += 6;
+        }
+      }
+      const cells = Array.from(tr.children).map((td) =>
+        td.textContent.trim()
+      );
+      const text = cells.join(" | ");
+      doc.text(`${idx + 1}. ${text}`, 10, y);
+      y += 5;
+    });
+  }
 
   doc.save("steps_sensitivity_summary.pdf");
   showToast(
@@ -2397,6 +2585,23 @@ function exportSensitivityToPdf() {
 /* ===========================
    Advanced settings
    =========================== */
+
+/* Shared helper to write to the visible settings log box */
+
+function logSettingsMessage(message) {
+  const targets = [];
+  const sessionLog = document.getElementById("settings-log");
+  const advLog = document.getElementById("adv-settings-log");
+  if (sessionLog) targets.push(sessionLog);
+  if (advLog && advLog !== sessionLog) targets.push(advLog);
+  if (!targets.length) return;
+  const time = new Date().toLocaleString();
+  targets.forEach((box) => {
+    const p = document.createElement("p");
+    p.textContent = `[${time}] ${message}`;
+    box.appendChild(p);
+  });
+}
 
 function initAdvancedSettings() {
   const valueGradInput = document.getElementById(
@@ -2432,11 +2637,7 @@ function initAdvancedSettings() {
   );
 
   function writeLog(message) {
-    if (!logBox) return;
-    const time = new Date().toLocaleString();
-    const p = document.createElement("p");
-    p.textContent = `[${time}] ${message}`;
-    logBox.appendChild(p);
+    logSettingsMessage(message);
   }
 
   if (applyBtn) {
@@ -2947,7 +3148,7 @@ function initEventHandlers() {
     });
   }
 
-  /* Settings tab Apply button (previously inactive) */
+  /* Settings tab Apply button (activate and log settings) */
 
   const settingsApplyBtn =
     document.getElementById("settings-apply") ||
@@ -2963,6 +3164,29 @@ function initEventHandlers() {
         appState.currentScenario = scenario;
         refreshAllOutputs(scenario);
       }
+      const general = appState.epiSettings.general;
+      const aTier = appState.epiSettings.tiers.frontline;
+      const msgParts = [];
+      msgParts.push(
+        `Planning horizon set to ${general.planningHorizonYears} years`
+      );
+      msgParts.push(
+        `value per outbreak set to ₹${formatNumber(aTier.valuePerOutbreak, 0)}`
+      );
+      msgParts.push(
+        `completion rate set to ${formatNumber(aTier.completionRate * 100, 1)} percent for all tiers`
+      );
+      msgParts.push(
+        `outbreaks per graduate per year set to ${aTier.outbreaksPerGraduatePerYear}`
+      );
+      msgParts.push(
+        `epidemiological discount rate set to ${formatNumber(general.epiDiscountRate * 100, 1)} percent`
+      );
+      msgParts.push(
+        `INR per USD exchange rate set to ${formatNumber(general.inrToUsdRate, 2)}`
+      );
+      const logMessage = msgParts.join("; ") + ".";
+      logSettingsMessage(`Settings applied. ${logMessage}`);
       showToast(
         "Settings applied for this session.",
         "success"
@@ -3081,7 +3305,9 @@ function initEventHandlers() {
           ? "Outbreak benefits included"
           : "Outbreak benefits excluded";
       }
-      refreshSensitivityTables();
+      if (appState.currentScenario) {
+        refreshSensitivityTables();
+      }
     });
   }
 
@@ -3095,6 +3321,42 @@ function initEventHandlers() {
         const valueInINR = raw * 1e9;
         applyOutbreakPreset(valueInINR);
       }
+    });
+  }
+
+  const outbreakApplyBtn = document.getElementById("apply-outbreak-value");
+  if (outbreakApplyBtn && outbreakPresetSelect) {
+    outbreakApplyBtn.addEventListener("click", () => {
+      const raw = Number(outbreakPresetSelect.value);
+      if (!isNaN(raw) && raw > 0) {
+        const valueInINR = raw * 1e9;
+        applyOutbreakPreset(valueInINR);
+      } else {
+        showToast(
+          "Select a value per outbreak before applying.",
+          "warning"
+        );
+      }
+    });
+  }
+
+  const benefitDefSelect = document.getElementById(
+    "benefit-definition-select"
+  );
+  if (benefitDefSelect) {
+    benefitDefSelect.addEventListener("change", () => {
+      if (!appState.currentScenario) return;
+      refreshSensitivityTables();
+    });
+  }
+
+  const endorsementOverrideInput = document.getElementById(
+    "endorsement-override"
+  );
+  if (endorsementOverrideInput) {
+    endorsementOverrideInput.addEventListener("change", () => {
+      if (!appState.currentScenario) return;
+      refreshSensitivityTables();
     });
   }
 }

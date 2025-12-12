@@ -526,6 +526,10 @@ button:disabled,
     box-shadow: var(--shadow-soft);
 }
 
+.card-config {
+    position: relative;
+}
+
 .card-header-with-info {
     display: flex;
     align-items: center;

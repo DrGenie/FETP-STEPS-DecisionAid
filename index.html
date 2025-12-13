@@ -1548,7 +1548,7 @@
         </div>
 
         <p>
-            This tab prepares a combined interpretation prompt and scenario JSON so that Microsoft Copilot can produce
+            This tab prepares a combined interpretation prompt so that Microsoft Copilot can produce
             a structured policy briefing. The STEPS tool never sends data automatically. You review the full text,
             copy it when you are ready and paste it into Copilot in a separate browser tab.
         </p>
@@ -1567,7 +1567,7 @@
                     </button>
                 </div>
                 <p class="copilot-instructions">
-                    Define and apply a scenario in STEPS, then move to this tab to generate an interpretation prompt with the latest scenario JSON for Microsoft Copilot.
+                    Define and apply a scenario in STEPS, then move to this tab to generate an interpretation prompt with the latest scenario for Microsoft Copilot.
                 </p>
             </div>
 
@@ -1601,7 +1601,7 @@
                                   rows="18"
                                   readonly>
 
-Apply a configuration in STEPS and click "Open in Copilot and copy prompt" to generate the full interpretation prompt and scenario JSON. The text will appear here and will be ready to paste into Microsoft Copilot at [https://copilot.microsoft.com/](https://copilot.microsoft.com/). When the Copilot page opens in a new window, paste the entire prompt into the Copilot input box and run it. </textarea> </div> <div class="copilot-status-row"> <span class="copilot-status-pill" id="copilot-status-pill">
+Apply a configuration in STEPS and click "Open in Copilot and copy prompt" to generate the full interpretation prompt and scenario. The text will appear here and will be ready to paste into Microsoft Copilot at [https://copilot.microsoft.com/](https://copilot.microsoft.com/). When the Copilot page opens in a new window, paste the entire prompt into the Copilot input box and run it. </textarea> </div> <div class="copilot-status-row"> <span class="copilot-status-pill" id="copilot-status-pill">
 Waiting for configuration </span> <span id="copilot-status-text">
 The Copilot interpretation text shown here is based on the most recent configuration and results. After changing the scenario, click the button above again so that the text is updated. </span> </div> </div>
 
@@ -1632,8 +1632,7 @@ The Copilot interpretation text shown here is based on the most recent configura
                     aria-label="Saved scenarios information">i</button>
         </div>
         <p>
-            Use this table to compare FETP options and support the business case for the World Bank and
-            other partners. Saved scenarios are also used for downloads.
+            Use this table to compare FETP options and support the business case. Saved scenarios are also used for downloads.
         </p>
         <div class="button-row">
             <button id="export-excel" class="btn-secondary" type="button" data-toast-message="Saved scenarios exported to Excel.">

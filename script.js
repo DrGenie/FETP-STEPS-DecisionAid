@@ -440,6 +440,17 @@ const appState = {
    Utility functions
    =========================== */
 
+function getElByIdCandidates(ids) {
+  if (!Array.isArray(ids)) return null;
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    if (!id) continue;
+    const el = document.getElementById(id);
+    if (el) return el;
+  }
+  return null;
+}
+
 function formatNumber(x, decimals = 0) {
   if (x === null || x === undefined || isNaN(x)) return "-";
   return x.toLocaleString("en-IN", {
@@ -488,11 +499,73 @@ function formatOutbreakPresetLabelBn(bn) {
   return `₹${formatNumber(bn, 0)}bn`;
 }
 
+function parseSensitivityValueToINR(raw) {
+  if (raw === null || raw === undefined) return null;
+
+  if (typeof raw === "number") {
+    const n = raw;
+    if (!isFinite(n) || n <= 0) return null;
+    if (n < 1e8) return n * 1e9;
+    return n;
+  }
+
+  let s = String(raw).trim();
+  if (!s) return null;
+
+  const lower = s.toLowerCase().replace(/,/g, "");
+  const hasBn = lower.includes("bn") || lower.includes("billion");
+  const hasMn = lower.includes("mn") || lower.includes("million");
+  const hasCr = lower.includes("crore") || /(^|\s)cr(\s|$)/.test(lower);
+
+  const match = lower.match(/-?\d+(\.\d+)?/);
+  if (!match) return null;
+
+  const n = Number(match[0]);
+  if (!isFinite(n) || n <= 0) return null;
+
+  if (hasBn) return n * 1e9;
+  if (hasMn) return n * 1e6;
+  if (hasCr) return n * 1e7;
+
+  if (n < 1e8) return n * 1e9;
+  return n;
+}
+
+function normalisedOutbreakValueKeysFromOption(optionEl) {
+  const keys = [];
+  if (!optionEl) return keys;
+
+  const rawValue = optionEl.value;
+  const rawText = optionEl.textContent || "";
+
+  const inr1 = parseSensitivityValueToINR(rawValue);
+  const inr2 = inr1 ? null : parseSensitivityValueToINR(rawText);
+  const inr = inr1 || inr2;
+
+  if (rawValue !== null && rawValue !== undefined) keys.push(String(rawValue));
+
+  if (inr && isFinite(inr) && inr > 0) {
+    keys.push(String(inr));
+    const bn = inr / 1e9;
+    if (isFinite(bn)) {
+      const bnRounded = Math.round(bn);
+      if (Math.abs(bn - bnRounded) < 1e-6) keys.push(String(bnRounded));
+      else keys.push(String(bn));
+    }
+  }
+
+  return keys;
+}
+
 function ensureSelectHasOutbreakPresets(selectEl) {
   if (!selectEl) return;
 
-  const existingValues = new Set(Array.from(selectEl.options).map((o) => String(o.value)));
+  const existingValues = new Set();
   const hasAnyOptions = selectEl.options && selectEl.options.length > 0;
+
+  Array.from(selectEl.options).forEach((o) => {
+    normalisedOutbreakValueKeysFromOption(o).forEach((k) => existingValues.add(String(k)));
+  });
 
   OUTBREAK_VALUE_PRESETS_BN.forEach((bn) => {
     const bnValue = String(bn);
@@ -504,11 +577,12 @@ function ensureSelectHasOutbreakPresets(selectEl) {
     opt.value = bnValue;
     opt.textContent = formatOutbreakPresetLabelBn(bn);
     selectEl.appendChild(opt);
+
     existingValues.add(bnValue);
+    existingValues.add(inrValue);
   });
 
-  // If the select was empty, ensure it has a sensible default selection
-  if (!hasAnyOptions && selectEl.options.length) {
+  if (!hasAnyOptions && selectEl.options && selectEl.options.length) {
     const currentInr = appState.epiSettings.tiers.frontline.valuePerOutbreak;
     setSelectToOutbreakValue(selectEl, currentInr);
   }
@@ -532,6 +606,7 @@ function closestPresetBn(valueInINR) {
 
 function setSelectToOutbreakValue(selectEl, valueInINR) {
   if (!selectEl) return;
+
   const nearestBn = closestPresetBn(valueInINR);
   const bnCandidate = String(nearestBn);
   const inrCandidate = String(nearestBn * 1e9);
@@ -547,17 +622,34 @@ function setSelectToOutbreakValue(selectEl, valueInINR) {
     return;
   }
 
-  // If current value exists exactly as INR in options, use it
   const exactInr = String(valueInINR);
   if (optionValues.has(exactInr)) {
     selectEl.value = exactInr;
+    return;
   }
+
+  let bestOpt = null;
+  let bestDist = Infinity;
+  const target = Number(valueInINR);
+
+  Array.from(selectEl.options).forEach((opt) => {
+    const inr = parseSensitivityValueToINR(opt.value) || parseSensitivityValueToINR(opt.textContent);
+    if (!inr) return;
+    const d = Math.abs(Number(inr) - target);
+    if (d < bestDist) {
+      bestDist = d;
+      bestOpt = opt;
+    }
+  });
+
+  if (bestOpt) selectEl.value = bestOpt.value;
 }
 
 function syncOutbreakValueDropdownsFromState() {
   const currentInr = appState.epiSettings.tiers.frontline.valuePerOutbreak;
-  const sensSelect = document.getElementById("sensitivityValueSelect");
-  const presetSelect = document.getElementById("outbreak-value-preset");
+
+  const sensSelect = getElByIdCandidates(["sensitivityValueSelect", "sensitivity-value-select", "sensitivity-value"]);
+  const presetSelect = getElByIdCandidates(["outbreak-value-preset", "outbreakValuePreset", "outbreak-value"]);
 
   if (sensSelect) {
     ensureSelectHasOutbreakPresets(sensSelect);
@@ -570,8 +662,8 @@ function syncOutbreakValueDropdownsFromState() {
 }
 
 function initOutbreakSensitivityDropdowns() {
-  const sensSelect = document.getElementById("sensitivityValueSelect");
-  const presetSelect = document.getElementById("outbreak-value-preset");
+  const sensSelect = getElByIdCandidates(["sensitivityValueSelect", "sensitivity-value-select", "sensitivity-value"]);
+  const presetSelect = getElByIdCandidates(["outbreak-value-preset", "outbreakValuePreset", "outbreak-value"]);
 
   if (sensSelect) ensureSelectHasOutbreakPresets(sensSelect);
   if (presetSelect) ensureSelectHasOutbreakPresets(presetSelect);
@@ -685,7 +777,6 @@ function ensureContractTooltipTriggers() {
     el.removeAttribute("title");
   });
 
-  // Backward compatible conversion for elements that have data-tooltip but no data-tooltip-key
   const legacy = Array.from(document.querySelectorAll("[data-tooltip]"));
   legacy.forEach((el) => {
     if (el.hasAttribute("data-tooltip-key")) return;
@@ -718,7 +809,6 @@ function initTooltips() {
     const key = target.getAttribute("data-tooltip-key");
     if (key && TOOLTIP_LIBRARY[key]) return TOOLTIP_LIBRARY[key];
 
-    // Pattern fallback for results and national keys if not explicitly defined
     if (key && key.startsWith("result_") && !TOOLTIP_LIBRARY[key]) {
       return {
         title: "Indicator",
@@ -766,7 +856,6 @@ function initTooltips() {
 
     tooltipEl.style.pointerEvents = "none";
 
-    // Make measurable
     tooltipEl.style.visibility = "hidden";
     tooltipEl.style.opacity = "0";
     tooltipEl.style.display = "block";
@@ -778,15 +867,12 @@ function initTooltips() {
     let top = rect.top - tipRect.height - offset;
     let left = rect.left + rect.width / 2 - tipRect.width / 2;
 
-    // If not enough space above, place below
     if (top < margin) {
       top = rect.bottom + offset;
     }
 
-    // Clamp within viewport
     left = clamp(left, margin, viewportW - tipRect.width - margin);
 
-    // If below overflows, move above if possible
     if (top + tipRect.height > viewportH - margin) {
       const altTop = rect.top - tipRect.height - offset;
       if (altTop >= margin) top = altTop;
@@ -860,8 +946,6 @@ function initTooltips() {
    =========================== */
 
 function initDefinitionTooltips() {
-  // Keep existing content, but ensure contract trigger wiring where possible
-
   const wtpInfo = document.getElementById("wtp-info");
   if (wtpInfo) {
     wtpInfo.classList.add("tooltip-trigger");
@@ -1540,54 +1624,74 @@ function applySettingsValuesToState(values) {
     const lower = String(k).toLowerCase();
     const num = Number(raw);
 
-    if (lower.includes("planning") && lower.includes("horizon") && isFinite(num) && num > 0) {
-      general.planningHorizonYears = Math.round(num);
+    if (lower.includes("planning") && lower.includes("horizon")) {
+      const v = Number(raw);
+      if (isFinite(v) && v > 0) general.planningHorizonYears = Math.round(v);
       return;
     }
 
-    if (lower.includes("discount") && isFinite(num) && num >= 0) {
-      let r = num;
-      if (r > 1) r = r / 100;
-      general.epiDiscountRate = clamp(r, 0, 1);
+    if (lower.includes("discount")) {
+      const v = Number(raw);
+      if (isFinite(v) && v >= 0) {
+        let r = v;
+        if (r > 1) r = r / 100;
+        general.epiDiscountRate = clamp(r, 0, 1);
+      }
       return;
     }
 
-    if ((lower.includes("usd") || lower.includes("exchange") || lower.includes("inr_to_usd") || lower.includes("inrtousd")) && isFinite(num) && num > 0) {
-      general.inrToUsdRate = num;
-      appState.usdRate = num;
+    if ((lower.includes("usd") || lower.includes("exchange") || lower.includes("inr_to_usd") || lower.includes("inrtousd"))) {
+      const v = Number(raw);
+      if (isFinite(v) && v > 0) {
+        general.inrToUsdRate = v;
+        appState.usdRate = v;
+      }
       return;
     }
 
-    if ((lower.includes("value") && lower.includes("outbreak")) && isFinite(num) && num > 0) {
-      let v = num;
-      if (v < 1e8) v = v * 1e9;
-      applyToAllTiers((t) => {
-        t.valuePerOutbreak = v;
-      });
+    if (lower.includes("value") && lower.includes("outbreak")) {
+      const vInr = parseSensitivityValueToINR(raw);
+      if (vInr && isFinite(vInr) && vInr > 0) {
+        applyToAllTiers((t) => {
+          t.valuePerOutbreak = vInr;
+        });
+      } else if (isFinite(num) && num > 0) {
+        let v = num;
+        if (v < 1e8) v = v * 1e9;
+        applyToAllTiers((t) => {
+          t.valuePerOutbreak = v;
+        });
+      }
       return;
     }
 
-    if ((lower.includes("completion") && lower.includes("rate")) && isFinite(num) && num >= 0) {
-      let cr = num;
-      if (cr > 1) cr = cr / 100;
-      cr = clamp(cr, 0, 1);
-      applyToAllTiers((t) => {
-        t.completionRate = cr;
-      });
+    if (lower.includes("completion") && lower.includes("rate")) {
+      if (isFinite(num) && num >= 0) {
+        let cr = num;
+        if (cr > 1) cr = cr / 100;
+        cr = clamp(cr, 0, 1);
+        applyToAllTiers((t) => {
+          t.completionRate = cr;
+        });
+      }
       return;
     }
 
-    if ((lower.includes("outbreaks") && lower.includes("graduate")) && isFinite(num) && num >= 0) {
-      applyToAllTiers((t) => {
-        t.outbreaksPerGraduatePerYear = num;
-      });
+    if (lower.includes("outbreaks") && lower.includes("graduate")) {
+      if (isFinite(num) && num >= 0) {
+        applyToAllTiers((t) => {
+          t.outbreaksPerGraduatePerYear = num;
+        });
+      }
       return;
     }
 
-    if ((lower.includes("value") && lower.includes("graduate")) && isFinite(num) && num >= 0) {
-      applyToAllTiers((t) => {
-        t.valuePerGraduate = num;
-      });
+    if (lower.includes("value") && lower.includes("graduate")) {
+      if (isFinite(num) && num >= 0) {
+        applyToAllTiers((t) => {
+          t.valuePerGraduate = num;
+        });
+      }
       return;
     }
   });
@@ -1612,15 +1716,26 @@ function buildHumanReadableSettingsSummary() {
 }
 
 function appendSettingsLogEntry(text) {
-  const log = document.getElementById("settingsLog");
-  if (!log) return;
-
   const time = new Date().toLocaleString();
-  const entry = document.createElement("div");
-  entry.className = "settings-log-entry";
-  entry.textContent = `[${time}] ${text}`;
-  log.appendChild(entry);
-  log.scrollTop = log.scrollHeight;
+
+  const targets = [];
+  const contractLog = document.getElementById("settingsLog");
+  const sessionLog = document.getElementById("settings-log");
+  const advLog = document.getElementById("adv-settings-log");
+
+  if (contractLog) targets.push(contractLog);
+  if (sessionLog && sessionLog !== contractLog) targets.push(sessionLog);
+  if (advLog && advLog !== sessionLog && advLog !== contractLog) targets.push(advLog);
+
+  if (!targets.length) return;
+
+  targets.forEach((log) => {
+    const entry = document.createElement("div");
+    entry.className = "settings-log-entry";
+    entry.textContent = `[${time}] ${text}`;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+  });
 }
 
 function initApplySettingsButton() {
@@ -1634,7 +1749,6 @@ function initApplySettingsButton() {
     const values = readSettingsFormValues();
     applySettingsValuesToState(values);
 
-    // Keep current scenario consistent with updated settings assumptions
     if (appState.currentScenario) {
       const c = { ...appState.currentScenario.config };
       c.planningHorizonYears = appState.epiSettings.general.planningHorizonYears;
@@ -2060,9 +2174,9 @@ function exportScenariosToPdf() {
    =========================== */
 
 function getSensitivityControls() {
-  const benefitModeSelect = document.getElementById("benefit-definition-select");
-  const epiToggle = document.getElementById("sensitivity-epi-toggle");
-  const endorsementOverrideInput = document.getElementById("endorsement-override");
+  const benefitModeSelect = getElByIdCandidates(["benefit-definition-select", "benefitDefinitionSelect"]);
+  const epiToggle = getElByIdCandidates(["sensitivity-epi-toggle", "sensitivityEpiToggle"]);
+  const endorsementOverrideInput = getElByIdCandidates(["endorsement-override", "endorsementOverride"]);
 
   return {
     benefitMode: benefitModeSelect ? benefitModeSelect.value : "wtp_only",
@@ -2188,14 +2302,6 @@ function exportSensitivityToExcel() {
    Sensitivity contract controls and PDF export
    =========================== */
 
-function parseSensitivityValueToINR(raw) {
-  const n = Number(raw);
-  if (!isFinite(n) || n <= 0) return null;
-  // If the dropdown uses small numbers (e.g., 10, 20, 30) treat as billions
-  if (n < 1e8) return n * 1e9;
-  return n;
-}
-
 function exportSensitivityContainerToPdf() {
   const container = document.getElementById("sensitivityTableContainer");
   if (!container) {
@@ -2271,7 +2377,6 @@ function exportSensitivityContainerToPdf() {
       y = (doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY : y + 20) + 16;
     });
   } else {
-    // Fallback: plain text export
     const text = container.innerText || "";
     const lines = doc.splitTextToSize(text, pageW - margin * 2);
     doc.setFontSize(9);
@@ -2290,9 +2395,9 @@ function exportSensitivityContainerToPdf() {
 }
 
 function initSensitivityContractControls() {
-  const select = document.getElementById("sensitivityValueSelect");
-  const applyBtn = document.getElementById("applySensitivityValueBtn");
-  const pdfBtn = document.getElementById("downloadSensitivityPDF");
+  const select = getElByIdCandidates(["sensitivityValueSelect", "sensitivity-value-select", "sensitivity-value"]);
+  const applyBtn = getElByIdCandidates(["applySensitivityValueBtn", "apply-sensitivity-value", "applySensitivityBtn"]);
+  const pdfBtn = getElByIdCandidates(["downloadSensitivityPDF", "download-sensitivity-pdf", "downloadSensitivityPdf"]);
 
   if (select) {
     ensureSelectHasOutbreakPresets(select);
@@ -2370,23 +2475,30 @@ function initAdvancedSettings() {
     applyBtn.addEventListener("click", () => {
       if (valueGradInput && valueOutbreakInput && completionInput && outbreaksPerGradInput && horizonInput && discInput && usdRateInput) {
         const vGrad = Number(valueGradInput.value);
-        const vOut = Number(valueOutbreakInput.value);
-        const compRate = Number(completionInput.value) / 100;
+        const vOutParsed = parseSensitivityValueToINR(valueOutbreakInput.value);
+        const vOut = vOutParsed !== null ? vOutParsed : Number(valueOutbreakInput.value);
+        const compRateRaw = Number(completionInput.value);
+        const compRate = isFinite(compRateRaw) ? clamp(compRateRaw / 100, 0, 1) : appState.epiSettings.tiers.frontline.completionRate;
         const outPerGrad = Number(outbreaksPerGradInput.value);
         const horizon = Number(horizonInput.value);
-        const discRate = Number(discInput.value) / 100;
+        const discRateRaw = Number(discInput.value);
+        const discRate = isFinite(discRateRaw) ? clamp(discRateRaw / 100, 0, 1) : appState.epiSettings.general.epiDiscountRate;
         const usdRate = Number(usdRateInput.value);
 
         ["frontline", "intermediate", "advanced"].forEach((tier) => {
-          appState.epiSettings.tiers[tier].valuePerGraduate = vGrad;
-          appState.epiSettings.tiers[tier].valuePerOutbreak = vOut;
-          appState.epiSettings.tiers[tier].completionRate = clamp(compRate, 0, 1);
-          appState.epiSettings.tiers[tier].outbreaksPerGraduatePerYear = outPerGrad;
+          appState.epiSettings.tiers[tier].valuePerGraduate = isFinite(vGrad) ? vGrad : 0;
+          if (isFinite(vOut) && vOut > 0) appState.epiSettings.tiers[tier].valuePerOutbreak = vOut;
+          appState.epiSettings.tiers[tier].completionRate = compRate;
+          if (isFinite(outPerGrad) && outPerGrad >= 0) appState.epiSettings.tiers[tier].outbreaksPerGraduatePerYear = outPerGrad;
         });
-        appState.epiSettings.general.planningHorizonYears = horizon;
+
+        if (isFinite(horizon) && horizon > 0) appState.epiSettings.general.planningHorizonYears = horizon;
         appState.epiSettings.general.epiDiscountRate = discRate;
-        appState.epiSettings.general.inrToUsdRate = usdRate;
-        appState.usdRate = usdRate;
+
+        if (isFinite(usdRate) && usdRate > 0) {
+          appState.epiSettings.general.inrToUsdRate = usdRate;
+          appState.usdRate = usdRate;
+        }
 
         writeLog(
           "Advanced settings updated for graduate value, value per outbreak, completion rate, outbreaks per graduate, planning horizon, discount rate and INR per USD. Current outbreak cost saving calculations use the outbreak value and planning horizon."
@@ -2741,7 +2853,7 @@ function initEventHandlers() {
   const sensExcelBtn = document.getElementById("export-sensitivity-benefits-excel");
   if (sensExcelBtn) sensExcelBtn.addEventListener("click", () => exportSensitivityToExcel());
 
-  const epiToggle = document.getElementById("sensitivity-epi-toggle");
+  const epiToggle = getElByIdCandidates(["sensitivity-epi-toggle", "sensitivityEpiToggle"]);
   if (epiToggle) {
     epiToggle.addEventListener("click", () => {
       const on = epiToggle.classList.toggle("on");
@@ -2751,7 +2863,7 @@ function initEventHandlers() {
     });
   }
 
-  const outbreakPresetSelect = document.getElementById("outbreak-value-preset");
+  const outbreakPresetSelect = getElByIdCandidates(["outbreak-value-preset", "outbreakValuePreset", "outbreak-value"]);
   if (outbreakPresetSelect) {
     ensureSelectHasOutbreakPresets(outbreakPresetSelect);
     outbreakPresetSelect.addEventListener("change", () => {
@@ -2762,7 +2874,7 @@ function initEventHandlers() {
     });
   }
 
-  const outbreakApplyBtn = document.getElementById("apply-outbreak-value");
+  const outbreakApplyBtn = getElByIdCandidates(["apply-outbreak-value", "applyOutbreakValue", "applyOutbreakPreset"]);
   if (outbreakApplyBtn && outbreakPresetSelect) {
     outbreakApplyBtn.addEventListener("click", () => {
       const valueInINR = parseSensitivityValueToINR(outbreakPresetSelect.value);
@@ -2774,7 +2886,7 @@ function initEventHandlers() {
     });
   }
 
-  const benefitDefSelect = document.getElementById("benefit-definition-select");
+  const benefitDefSelect = getElByIdCandidates(["benefit-definition-select", "benefitDefinitionSelect"]);
   if (benefitDefSelect) {
     benefitDefSelect.addEventListener("change", () => {
       if (!appState.currentScenario) return;
@@ -2782,7 +2894,7 @@ function initEventHandlers() {
     });
   }
 
-  const endorsementOverrideInput = document.getElementById("endorsement-override");
+  const endorsementOverrideInput = getElByIdCandidates(["endorsement-override", "endorsementOverride"]);
   if (endorsementOverrideInput) {
     endorsementOverrideInput.addEventListener("change", () => {
       if (!appState.currentScenario) return;
@@ -2790,7 +2902,6 @@ function initEventHandlers() {
     });
   }
 
-  // UI contract wiring
   initApplySettingsButton();
   initSensitivityContractControls();
 }

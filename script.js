@@ -505,7 +505,7 @@ function parseSensitivityValueToINR(raw) {
   if (typeof raw === "number") {
     const n = raw;
     if (!isFinite(n) || n <= 0) return null;
-    if (n < 1e8) return n * 1e9;
+    if (n < 1000) return n * 1e9;
     return n;
   }
 
@@ -527,7 +527,7 @@ function parseSensitivityValueToINR(raw) {
   if (hasMn) return n * 1e6;
   if (hasCr) return n * 1e7;
 
-  if (n < 1e8) return n * 1e9;
+  if (n < 1000) return n * 1e9;
   return n;
 }
 
@@ -606,12 +606,39 @@ function closestPresetBn(valueInINR) {
 
 function setSelectToOutbreakValue(selectEl, valueInINR) {
   if (!selectEl) return;
+  if (!isFinite(Number(valueInINR)) || Number(valueInINR) <= 0) return;
 
-  const nearestBn = closestPresetBn(valueInINR);
+  const target = Number(valueInINR);
+  const options = Array.from(selectEl.options || []);
+  const optionValues = new Set(options.map((o) => String(o.value)));
+
+  const exactInr = String(target);
+  if (optionValues.has(exactInr)) {
+    selectEl.value = exactInr;
+    return;
+  }
+
+  let bestOpt = null;
+  let bestDist = Infinity;
+
+  options.forEach((opt) => {
+    const inr = parseSensitivityValueToINR(opt.value) || parseSensitivityValueToINR(opt.textContent);
+    if (!inr || !isFinite(Number(inr))) return;
+    const d = Math.abs(Number(inr) - target);
+    if (d < bestDist) {
+      bestDist = d;
+      bestOpt = opt;
+    }
+  });
+
+  if (bestOpt && isFinite(bestDist)) {
+    selectEl.value = bestOpt.value;
+    return;
+  }
+
+  const nearestBn = closestPresetBn(target);
   const bnCandidate = String(nearestBn);
   const inrCandidate = String(nearestBn * 1e9);
-
-  const optionValues = new Set(Array.from(selectEl.options).map((o) => String(o.value)));
 
   if (optionValues.has(bnCandidate)) {
     selectEl.value = bnCandidate;
@@ -621,28 +648,6 @@ function setSelectToOutbreakValue(selectEl, valueInINR) {
     selectEl.value = inrCandidate;
     return;
   }
-
-  const exactInr = String(valueInINR);
-  if (optionValues.has(exactInr)) {
-    selectEl.value = exactInr;
-    return;
-  }
-
-  let bestOpt = null;
-  let bestDist = Infinity;
-  const target = Number(valueInINR);
-
-  Array.from(selectEl.options).forEach((opt) => {
-    const inr = parseSensitivityValueToINR(opt.value) || parseSensitivityValueToINR(opt.textContent);
-    if (!inr) return;
-    const d = Math.abs(Number(inr) - target);
-    if (d < bestDist) {
-      bestDist = d;
-      bestOpt = opt;
-    }
-  });
-
-  if (bestOpt) selectEl.value = bestOpt.value;
 }
 
 function syncOutbreakValueDropdownsFromState() {
@@ -1657,7 +1662,7 @@ function applySettingsValuesToState(values) {
         });
       } else if (isFinite(num) && num > 0) {
         let v = num;
-        if (v < 1e8) v = v * 1e9;
+        if (v < 1000) v = v * 1e9;
         applyToAllTiers((t) => {
           t.valuePerOutbreak = v;
         });

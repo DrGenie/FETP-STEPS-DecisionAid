@@ -1843,7 +1843,7 @@ function updateConfigSummary(scenario) {
       statusText = "Promising configuration (needs discussion)";
     } else {
       statusClass = "status-poor";
-      statusText = "Challenging configuration";
+      statusText = "Challenging configuration (Less support and the WTP value is below the cost)";
     }
 
     statusTag.classList.add(statusClass);

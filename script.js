@@ -818,7 +818,7 @@ function initTooltips() {
       return {
         title: "Indicator",
         body:
-          "This indicator summarises a results tab output. The exact definition depends on the model output shown next to the label. Use the settings and methods tab for assumptions and interpret ratios above one and net benefits above zero as indicating benefits exceed costs under current assumptions."
+          "This indicator summarises the results shown. See the settings section for the assumptions used. In general, ratios greater than 1 and net benefits greater than 0 mean the benefits outweigh the costs."
       };
     }
     if (key && key.startsWith("national_") && !TOOLTIP_LIBRARY[key]) {

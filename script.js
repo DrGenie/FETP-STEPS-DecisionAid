@@ -2001,7 +2001,7 @@ function updateNationalSimulationTab(scenario) {
       `At national level, this configuration would produce about ${formatNumber(
         scenario.graduatesAllCohorts,
         0
-      )} graduates over the planning horizon and support around ${formatNumber(
+      )} graduates over the selected timeframe and support around ${formatNumber(
         scenario.outbreaksPerYearNational,
         1
       )} outbreak responses per year once all cohorts are complete. The total economic cost across all cohorts is roughly ${formatCurrencyDisplay(

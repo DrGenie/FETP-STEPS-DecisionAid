@@ -1,3 +1,4 @@
+
 /* ===================================================
    STEPS FETP India Decision Aid
    Next generation script with working tooltips,
@@ -125,19 +126,19 @@ const DEFAULT_EPI_SETTINGS = {
       completionRate: 0.9,
       outbreaksPerGraduatePerYear: 0.5,
       valuePerGraduate: 0,
-      valuePerOutbreak: 20000000000
+      valuePerOutbreak: 4000000
     },
     intermediate: {
       completionRate: 0.9,
       outbreaksPerGraduatePerYear: 0.5,
       valuePerGraduate: 0,
-      valuePerOutbreak: 20000000000
+      valuePerOutbreak: 4000000
     },
     advanced: {
       completionRate: 0.9,
       outbreaksPerGraduatePerYear: 0.5,
       valuePerGraduate: 0,
-      valuePerOutbreak: 20000000000
+      valuePerOutbreak: 4000000
     }
   }
 };
@@ -493,10 +494,10 @@ function safeText(x) {
    Outbreak value presets (sensitivity dropdowns)
    =========================== */
 
-const OUTBREAK_VALUE_PRESETS_BN = [5, 10, 20, 30, 40, 50];
+const OUTBREAK_VALUE_PRESETS_MN = [4, 5, 10, 20, 30, 40];
 
-function formatOutbreakPresetLabelBn(bn) {
-  return `₹${formatNumber(bn, 0)}bn`;
+function formatOutbreakPresetLabelMn(mn) {
+  return `₹${formatNumber(mn, 0)}m`;
 }
 
 function parseSensitivityValueToINR(raw) {
@@ -505,7 +506,7 @@ function parseSensitivityValueToINR(raw) {
   if (typeof raw === "number") {
     const n = raw;
     if (!isFinite(n) || n <= 0) return null;
-    if (n < 1000) return n * 1e9;
+    if (n < 1000) return n * 1e6;
     return n;
   }
 
@@ -527,7 +528,7 @@ function parseSensitivityValueToINR(raw) {
   if (hasMn) return n * 1e6;
   if (hasCr) return n * 1e7;
 
-  if (n < 1000) return n * 1e9;
+  if (n < 1000) return n * 1e6;
   return n;
 }
 
@@ -546,11 +547,11 @@ function normalisedOutbreakValueKeysFromOption(optionEl) {
 
   if (inr && isFinite(inr) && inr > 0) {
     keys.push(String(inr));
-    const bn = inr / 1e9;
-    if (isFinite(bn)) {
-      const bnRounded = Math.round(bn);
-      if (Math.abs(bn - bnRounded) < 1e-6) keys.push(String(bnRounded));
-      else keys.push(String(bn));
+    const mn = inr / 1e6;
+    if (isFinite(mn)) {
+      const mnRounded = Math.round(mn);
+      if (Math.abs(mn - mnRounded) < 1e-6) keys.push(String(mnRounded));
+      else keys.push(String(mn));
     }
   }
 
@@ -567,18 +568,18 @@ function ensureSelectHasOutbreakPresets(selectEl) {
     normalisedOutbreakValueKeysFromOption(o).forEach((k) => existingValues.add(String(k)));
   });
 
-  OUTBREAK_VALUE_PRESETS_BN.forEach((bn) => {
-    const bnValue = String(bn);
-    const inrValue = String(bn * 1e9);
+  OUTBREAK_VALUE_PRESETS_MN.forEach((mn) => {
+    const mnValue = String(mn);
+    const inrValue = String(mn * 1e6);
 
-    if (existingValues.has(bnValue) || existingValues.has(inrValue)) return;
+    if (existingValues.has(mnValue) || existingValues.has(inrValue)) return;
 
     const opt = document.createElement("option");
-    opt.value = bnValue;
-    opt.textContent = formatOutbreakPresetLabelBn(bn);
+    opt.value = mnValue;
+    opt.textContent = formatOutbreakPresetLabelMn(mn);
     selectEl.appendChild(opt);
 
-    existingValues.add(bnValue);
+    existingValues.add(mnValue);
     existingValues.add(inrValue);
   });
 
@@ -588,14 +589,14 @@ function ensureSelectHasOutbreakPresets(selectEl) {
   }
 }
 
-function closestPresetBn(valueInINR) {
-  if (!isFinite(valueInINR) || valueInINR <= 0) return OUTBREAK_VALUE_PRESETS_BN[0];
-  const bn = valueInINR / 1e9;
-  let best = OUTBREAK_VALUE_PRESETS_BN[0];
-  let bestDist = Math.abs(best - bn);
-  for (let i = 1; i < OUTBREAK_VALUE_PRESETS_BN.length; i++) {
-    const v = OUTBREAK_VALUE_PRESETS_BN[i];
-    const d = Math.abs(v - bn);
+function closestPresetMn(valueInINR) {
+  if (!isFinite(valueInINR) || valueInINR <= 0) return OUTBREAK_VALUE_PRESETS_MN[0];
+  const mn = valueInINR / 1e6;
+  let best = OUTBREAK_VALUE_PRESETS_MN[0];
+  let bestDist = Math.abs(best - mn);
+  for (let i = 1; i < OUTBREAK_VALUE_PRESETS_MN.length; i++) {
+    const v = OUTBREAK_VALUE_PRESETS_MN[i];
+    const d = Math.abs(v - mn);
     if (d < bestDist) {
       best = v;
       bestDist = d;
@@ -636,12 +637,12 @@ function setSelectToOutbreakValue(selectEl, valueInINR) {
     return;
   }
 
-  const nearestBn = closestPresetBn(target);
-  const bnCandidate = String(nearestBn);
-  const inrCandidate = String(nearestBn * 1e9);
+  const nearestMn = closestPresetMn(target);
+  const mnCandidate = String(nearestMn);
+  const inrCandidate = String(nearestMn * 1e6);
 
-  if (optionValues.has(bnCandidate)) {
-    selectEl.value = bnCandidate;
+  if (optionValues.has(mnCandidate)) {
+    selectEl.value = mnCandidate;
     return;
   }
   if (optionValues.has(inrCandidate)) {
@@ -1662,7 +1663,7 @@ function applySettingsValuesToState(values) {
         });
       } else if (isFinite(num) && num > 0) {
         let v = num;
-        if (v < 1000) v = v * 1e9;
+        if (v < 1000) v = v * 1e6;
         applyToAllTiers((t) => {
           t.valuePerOutbreak = v;
         });
@@ -2528,7 +2529,7 @@ function initAdvancedSettings() {
       appState.usdRate = DEFAULT_EPI_SETTINGS.general.inrToUsdRate;
 
       if (valueGradInput) valueGradInput.value = "0";
-      if (valueOutbreakInput) valueOutbreakInput.value = "20000000000";
+      if (valueOutbreakInput) valueOutbreakInput.value = "4000000";
       if (completionInput) completionInput.value = "90";
       if (outbreaksPerGradInput) outbreaksPerGradInput.value = "0.5";
       if (horizonInput) horizonInput.value = String(DEFAULT_EPI_SETTINGS.general.planningHorizonYears);
